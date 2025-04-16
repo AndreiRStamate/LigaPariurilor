@@ -14,6 +14,7 @@ struct ContentView: View {
             if let content = viewModel.formattedText {
                 ScrollView {
                     Text(content)
+                        .font(.system(size: 12, design: .monospaced))
                         .padding()
                         .multilineTextAlignment(.leading)
                 }
@@ -43,7 +44,7 @@ class JSONViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     func fetchJSON() {
-        guard let url = URL(string: "http://localhost:6969/files/api_response_soccer_uefa_champs_league.json") else {
+        guard let url = URL(string: "https://c910-188-25-128-207.ngrok-free.app/files/api_response_soccer_uefa_champs_league.json") else {
             errorMessage = "Invalid URL"
             return
         }
@@ -70,9 +71,8 @@ class JSONViewModel: ObservableObject {
                     let matches = JSONMatchParser.parseMatches(from: data, league: "soccer_uefa_champs_league")
 
                     // Example: Convert match data to a displayable string (can customize later)
-                    self.formattedText = matches.map { match in
-                        "\(match.team1) vs \(match.team2)\nOdds: \(match.odds[match.team1]!) / \(match.odds[match.team2]!)\nDate: \(match.commenceTime)"
-                    }.joined(separator: "\n\n")
+                    let formatter = MatchFormatter()
+                    self.formattedText = matches.map { formatter.format(match: $0) }.joined(separator: "\n\n")
                 } catch {
                     self.errorMessage = "Failed to parse JSON"
                 }
@@ -90,6 +90,8 @@ struct Match: Identifiable {
     let team2: String
     let odds: [String: Double]
     let commenceTime: String
+    let predictability: Double
+    let action: String
 }
 
 class JSONMatchParser {
@@ -159,12 +161,47 @@ class JSONMatchParser {
                 team1: t1,
                 team2: t2,
                 odds: [t1: best1, t2: best2],
-                commenceTime: commenceTime
+                commenceTime: commenceTime,
+                predictability: abs(best1-best2),
+                action: abs(best1-best2) < 1.0 ? "PARIUS SIGUR" : "PARIU RISCANT"
             )
 
             matches.append(match)
         }
 
         return matches
+    }
+}
+
+class MatchFormatter {
+    func format(match: Match) -> String {
+        let totalWidth = 44
+        let border = "+" + String(repeating: "-", count: totalWidth - 2) + "+"
+
+        let dateStr: String
+        if let date = ISO8601DateFormatter().date(from: match.commenceTime) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd-MM-yyyy HH:mm"
+            dateStr = formatter.string(from: date)
+        } else {
+            dateStr = match.commenceTime
+        }
+
+        func center(_ text: String) -> String {
+            let trimmed = text.count > (totalWidth - 2) ? String(text.prefix(totalWidth - 5)) + "..." : text
+            let padding = max(0, (totalWidth - 2 - trimmed.count) / 2)
+            let line = String(repeating: " ", count: padding) + trimmed
+            return "|" + line.padding(toLength: totalWidth - 2, withPad: " ", startingAt: 0) + "|"
+        }
+
+        let lines = [
+            center(match.league),
+            center("\(match.team1) vs \(match.team2)"),
+            center(dateStr),
+            center(String(format: "%.2f", match.predictability)),
+            center(match.action)
+        ]
+
+        return ([border] + lines + [border]).joined(separator: "\n")
     }
 }
