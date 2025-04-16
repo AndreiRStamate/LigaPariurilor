@@ -1,0 +1,563 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		590B52002DAFBA7C00AB9BEC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 590B51E72DAFBA7B00AB9BEC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 590B51EE2DAFBA7C00AB9BEC;
+			remoteInfo = LigaPariurilor;
+		};
+		590B520A2DAFBA7C00AB9BEC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 590B51E72DAFBA7B00AB9BEC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 590B51EE2DAFBA7C00AB9BEC;
+			remoteInfo = LigaPariurilor;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		590B51EF2DAFBA7C00AB9BEC /* LigaPariurilor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LigaPariurilor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		590B51FF2DAFBA7C00AB9BEC /* LigaPariurilorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LigaPariurilorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		590B52092DAFBA7C00AB9BEC /* LigaPariurilorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LigaPariurilorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		590B51F12DAFBA7C00AB9BEC /* LigaPariurilor */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LigaPariurilor;
+			sourceTree = "<group>";
+		};
+		590B52022DAFBA7C00AB9BEC /* LigaPariurilorTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LigaPariurilorTests;
+			sourceTree = "<group>";
+		};
+		590B520C2DAFBA7C00AB9BEC /* LigaPariurilorUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = LigaPariurilorUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		590B51EC2DAFBA7C00AB9BEC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		590B51FC2DAFBA7C00AB9BEC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		590B52062DAFBA7C00AB9BEC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		590B51E62DAFBA7B00AB9BEC = {
+			isa = PBXGroup;
+			children = (
+				590B51F12DAFBA7C00AB9BEC /* LigaPariurilor */,
+				590B52022DAFBA7C00AB9BEC /* LigaPariurilorTests */,
+				590B520C2DAFBA7C00AB9BEC /* LigaPariurilorUITests */,
+				590B51F02DAFBA7C00AB9BEC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		590B51F02DAFBA7C00AB9BEC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				590B51EF2DAFBA7C00AB9BEC /* LigaPariurilor.app */,
+				590B51FF2DAFBA7C00AB9BEC /* LigaPariurilorTests.xctest */,
+				590B52092DAFBA7C00AB9BEC /* LigaPariurilorUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		590B51EE2DAFBA7C00AB9BEC /* LigaPariurilor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 590B52132DAFBA7C00AB9BEC /* Build configuration list for PBXNativeTarget "LigaPariurilor" */;
+			buildPhases = (
+				590B51EB2DAFBA7C00AB9BEC /* Sources */,
+				590B51EC2DAFBA7C00AB9BEC /* Frameworks */,
+				590B51ED2DAFBA7C00AB9BEC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				590B51F12DAFBA7C00AB9BEC /* LigaPariurilor */,
+			);
+			name = LigaPariurilor;
+			packageProductDependencies = (
+			);
+			productName = LigaPariurilor;
+			productReference = 590B51EF2DAFBA7C00AB9BEC /* LigaPariurilor.app */;
+			productType = "com.apple.product-type.application";
+		};
+		590B51FE2DAFBA7C00AB9BEC /* LigaPariurilorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 590B52162DAFBA7C00AB9BEC /* Build configuration list for PBXNativeTarget "LigaPariurilorTests" */;
+			buildPhases = (
+				590B51FB2DAFBA7C00AB9BEC /* Sources */,
+				590B51FC2DAFBA7C00AB9BEC /* Frameworks */,
+				590B51FD2DAFBA7C00AB9BEC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				590B52012DAFBA7C00AB9BEC /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				590B52022DAFBA7C00AB9BEC /* LigaPariurilorTests */,
+			);
+			name = LigaPariurilorTests;
+			packageProductDependencies = (
+			);
+			productName = LigaPariurilorTests;
+			productReference = 590B51FF2DAFBA7C00AB9BEC /* LigaPariurilorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		590B52082DAFBA7C00AB9BEC /* LigaPariurilorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 590B52192DAFBA7C00AB9BEC /* Build configuration list for PBXNativeTarget "LigaPariurilorUITests" */;
+			buildPhases = (
+				590B52052DAFBA7C00AB9BEC /* Sources */,
+				590B52062DAFBA7C00AB9BEC /* Frameworks */,
+				590B52072DAFBA7C00AB9BEC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				590B520B2DAFBA7C00AB9BEC /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				590B520C2DAFBA7C00AB9BEC /* LigaPariurilorUITests */,
+			);
+			name = LigaPariurilorUITests;
+			packageProductDependencies = (
+			);
+			productName = LigaPariurilorUITests;
+			productReference = 590B52092DAFBA7C00AB9BEC /* LigaPariurilorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		590B51E72DAFBA7B00AB9BEC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					590B51EE2DAFBA7C00AB9BEC = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					590B51FE2DAFBA7C00AB9BEC = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 590B51EE2DAFBA7C00AB9BEC;
+					};
+					590B52082DAFBA7C00AB9BEC = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 590B51EE2DAFBA7C00AB9BEC;
+					};
+				};
+			};
+			buildConfigurationList = 590B51EA2DAFBA7B00AB9BEC /* Build configuration list for PBXProject "LigaPariurilor" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 590B51E62DAFBA7B00AB9BEC;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 590B51F02DAFBA7C00AB9BEC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				590B51EE2DAFBA7C00AB9BEC /* LigaPariurilor */,
+				590B51FE2DAFBA7C00AB9BEC /* LigaPariurilorTests */,
+				590B52082DAFBA7C00AB9BEC /* LigaPariurilorUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		590B51ED2DAFBA7C00AB9BEC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		590B51FD2DAFBA7C00AB9BEC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		590B52072DAFBA7C00AB9BEC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		590B51EB2DAFBA7C00AB9BEC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		590B51FB2DAFBA7C00AB9BEC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		590B52052DAFBA7C00AB9BEC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		590B52012DAFBA7C00AB9BEC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 590B51EE2DAFBA7C00AB9BEC /* LigaPariurilor */;
+			targetProxy = 590B52002DAFBA7C00AB9BEC /* PBXContainerItemProxy */;
+		};
+		590B520B2DAFBA7C00AB9BEC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 590B51EE2DAFBA7C00AB9BEC /* LigaPariurilor */;
+			targetProxy = 590B520A2DAFBA7C00AB9BEC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		590B52112DAFBA7C00AB9BEC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		590B52122DAFBA7C00AB9BEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		590B52142DAFBA7C00AB9BEC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LigaPariurilor/Preview Content\"";
+				DEVELOPMENT_TEAM = YKHTRGRGRH;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "soOP-desk-studio.LigaPariurilor";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		590B52152DAFBA7C00AB9BEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LigaPariurilor/Preview Content\"";
+				DEVELOPMENT_TEAM = YKHTRGRGRH;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "soOP-desk-studio.LigaPariurilor";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		590B52172DAFBA7C00AB9BEC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YKHTRGRGRH;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "soOP-desk-studio.LigaPariurilorTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LigaPariurilor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LigaPariurilor";
+			};
+			name = Debug;
+		};
+		590B52182DAFBA7C00AB9BEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YKHTRGRGRH;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "soOP-desk-studio.LigaPariurilorTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LigaPariurilor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LigaPariurilor";
+			};
+			name = Release;
+		};
+		590B521A2DAFBA7C00AB9BEC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YKHTRGRGRH;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "soOP-desk-studio.LigaPariurilorUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LigaPariurilor;
+			};
+			name = Debug;
+		};
+		590B521B2DAFBA7C00AB9BEC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YKHTRGRGRH;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "soOP-desk-studio.LigaPariurilorUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LigaPariurilor;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		590B51EA2DAFBA7B00AB9BEC /* Build configuration list for PBXProject "LigaPariurilor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				590B52112DAFBA7C00AB9BEC /* Debug */,
+				590B52122DAFBA7C00AB9BEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		590B52132DAFBA7C00AB9BEC /* Build configuration list for PBXNativeTarget "LigaPariurilor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				590B52142DAFBA7C00AB9BEC /* Debug */,
+				590B52152DAFBA7C00AB9BEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		590B52162DAFBA7C00AB9BEC /* Build configuration list for PBXNativeTarget "LigaPariurilorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				590B52172DAFBA7C00AB9BEC /* Debug */,
+				590B52182DAFBA7C00AB9BEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		590B52192DAFBA7C00AB9BEC /* Build configuration list for PBXNativeTarget "LigaPariurilorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				590B521A2DAFBA7C00AB9BEC /* Debug */,
+				590B521B2DAFBA7C00AB9BEC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 590B51E72DAFBA7B00AB9BEC /* Project object */;
+}
