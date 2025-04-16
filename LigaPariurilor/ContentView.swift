@@ -11,7 +11,12 @@ class JSONViewModel: ObservableObject {
     @Published var formattedText: String?
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @AppStorage("sortMode") var sortMode: SortMode = .predictability
 
+    enum SortMode: String {
+        case commenceTime
+        case predictability
+    }
     func fetchJSON(from fileName: String) {
         guard let url = URL(string: "http://c910-188-25-128-207.ngrok-free.app/files/\(fileName)") else {
             errorMessage = "Invalid URL"
@@ -37,10 +42,19 @@ class JSONViewModel: ObservableObject {
 
                 do {
                     _ = try JSONSerialization.jsonObject(with: data, options: [])
-                    let matches = JSONMatchParser.parseMatches(from: data, league: fileName)
-
+                    let matches = JSONMatchParser.parseMatches(from: data)
                     let formatter = MatchFormatter()
-                    self.formattedText = matches.map { formatter.format(match: $0) }.joined(separator: "\n\n")
+                    let sortedMatches: [Match]
+                    switch self.sortMode {
+                    case .predictability:
+                        sortedMatches = matches.sorted { $0.predictability < $1.predictability }
+                    case .commenceTime:
+                        sortedMatches = matches.sorted {
+                            (ISO8601DateFormatter().date(from: $0.commenceTime) ?? .distantFuture) <
+                            (ISO8601DateFormatter().date(from: $1.commenceTime) ?? .distantFuture)
+                        }
+                    }
+                    self.formattedText = sortedMatches.map { formatter.format(match: $0) }.joined(separator: "\n\n")
                 } catch {
                     self.errorMessage = "Failed to parse JSON"
                 }
@@ -73,7 +87,7 @@ struct Match: Identifiable {
 }
 
 class JSONMatchParser {
-    static func parseMatches(from data: Data, league: String) -> [Match] {
+    static func parseMatches(from data: Data) -> [Match] {
         guard let jsonArray = try? JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] else {
             print("Failed to decode JSON array")
             return []
@@ -84,7 +98,11 @@ class JSONMatchParser {
         for match in jsonArray {
             var team1: String?
             var team2: String?
-
+            guard let league = match["sport_title"] as? String else {
+                print("Skipping match due to missing league")
+                continue
+            }
+            
             if let teams = match["teams"] as? [String], teams.count == 2 {
                 team1 = teams[0]
                 team2 = teams[1]
@@ -130,7 +148,7 @@ class JSONMatchParser {
             }
 
             guard let best1 = oddsTeam1.min(), let best2 = oddsTeam2.min() else {
-                print("Skipping match due to missing odds")
+                print("Skipping \(t1) vs \(t2) due to missing odds")
                 continue
             }
 
@@ -151,6 +169,54 @@ class JSONMatchParser {
     }
 }
 
+let LEAGUE_NAMES: [String: String] = [
+    "soccer_argentina_primera_division": "Argentina Primera Division",
+    "soccer_australia_aleague": "Australia A-League",
+    "soccer_austria_bundesliga": "Austria Bundesliga",
+    "soccer_belgium_first_div": "Belgium First Division",
+    "soccer_brazil_campeonato": "Brazil Campeonato",
+    "soccer_brazil_serie_b": "Brazil Serie B",
+    "soccer_chile_campeonato": "Chile Campeonato",
+    "soccer_china_superleague": "China Super League",
+    "soccer_conmebol_copa_libertadores": "CONMEBOL Copa Libertadores",
+    "soccer_conmebol_copa_sudamericana": "CONMEBOL Copa Sudamericana",
+    "soccer_denmark_superliga": "Denmark Superliga",
+    "soccer_efl_champ": "EFL Championship",
+    "soccer_england_league1": "England League One",
+    "soccer_england_league2": "England League Two",
+    "soccer_epl": "English Premier League",
+    "soccer_fa_cup": "FA Cup",
+    "soccer_finland_veikkausliiga": "Finland Veikkausliiga",
+    "soccer_france_ligue_one": "France Ligue 1",
+    "soccer_france_ligue_two": "France Ligue 2",
+    "soccer_germany_bundesliga": "Germany Bundesliga",
+    "soccer_germany_bundesliga2": "Germany Bundesliga 2",
+    "soccer_germany_liga3": "Germany Liga 3",
+    "soccer_greece_super_league": "Greece Super League",
+    "soccer_italy_serie_a": "Italy Serie A",
+    "soccer_italy_serie_b": "Italy Serie B",
+    "soccer_japan_j_league": "Japan J-League",
+    "soccer_korea_kleague1": "Korea K-League 1",
+    "soccer_league_of_ireland": "League of Ireland",
+    "soccer_mexico_ligamx": "Mexico Liga MX",
+    "soccer_netherlands_eredivisie": "Netherlands Eredivisie",
+    "soccer_norway_eliteserien": "Norway Eliteserien",
+    "soccer_poland_ekstraklasa": "Poland Ekstraklasa",
+    "soccer_portugal_primeira_liga": "Portugal Primeira Liga",
+    "soccer_spain_la_liga": "La Liga",
+    "soccer_spain_segunda_division": "Spain Segunda Division",
+    "soccer_sweden_allsvenskan": "Sweden Allsvenskan",
+    "soccer_sweden_superettan": "Sweden Superettan",
+    "soccer_switzerland_superleague": "Switzerland Super League",
+    "soccer_turkey_super_league": "Turkey Super League",
+    "soccer_uefa_champs_league": "UEFA Champions League",
+    "soccer_uefa_champs_league_women": "UEFA Champions League Women",
+    "soccer_uefa_europa_conference_league": "UEFA Europa Conference League",
+    "soccer_uefa_europa_league": "UEFA Europa League",
+    "soccer_uefa_nations_league": "UEFA Nations League",
+    "soccer_usa_mls": "USA Major League Soccer"
+]
+
 class MatchFormatter {
     func format(match: Match) -> String {
         let totalWidth = 44
@@ -158,9 +224,20 @@ class MatchFormatter {
 
         let dateStr: String
         if let date = ISO8601DateFormatter().date(from: match.commenceTime) {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd-MM-yyyy HH:mm"
-            dateStr = formatter.string(from: date)
+            let calendar = Calendar.current
+            if calendar.isDateInToday(date) {
+                let timeFormatter = DateFormatter()
+                timeFormatter.dateFormat = "HH:mm"
+                dateStr = "Azi la \(timeFormatter.string(from: date))"
+            } else if calendar.isDateInTomorrow(date) {
+                let timeFormatter = DateFormatter()
+                timeFormatter.dateFormat = "HH:mm"
+                dateStr = "Mâine la \(timeFormatter.string(from: date))"
+            } else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "dd-MM-yyyy HH:mm"
+                dateStr = formatter.string(from: date)
+            }
         } else {
             dateStr = match.commenceTime
         }
@@ -173,7 +250,7 @@ class MatchFormatter {
         }
 
         let lines = [
-            center(match.league),
+            center(LEAGUE_NAMES[match.league] ?? match.league),
             center("\(match.team1) vs \(match.team2)"),
             center(dateStr),
             center(String(format: "%.2f", match.predictability)),
@@ -186,10 +263,19 @@ class MatchFormatter {
 
 import SwiftUI
 
+struct LeagueFile: Identifiable {
+    let id = UUID()
+    let fileName: String
+    let leagueKey: String
+    let displayName: String
+    let region: String
+}
+
 struct FileListView: View {
-    @State private var files: [String] = []
+    @State private var leagueFiles: [LeagueFile] = []
     @State private var isLoading = true
     @State private var errorMessage: String? = nil
+    @State private var searchText: String = ""
 
     var body: some View {
         NavigationView {
@@ -200,16 +286,29 @@ struct FileListView: View {
                     Text("Error: \(errorMessage)")
                         .foregroundColor(.red)
                 } else {
-                    List(files, id: \.self) { file in
-                        NavigationLink(destination: FileDetailView(fileName: file)) {
-                            Text(file)
-                                .font(.system(size: 14, design: .monospaced))
-                                .padding(.vertical, 4)
+                    List {
+                        ForEach(Dictionary(grouping: filteredFiles, by: { $0.region })
+                            .sorted(by: { $0.value.count > $1.value.count }), id: \.key) { region, items in
+                            Section(header: Text(region)) {
+                                ForEach(items) { file in
+                                    NavigationLink(destination: FileDetailView(fileName: file.fileName)) {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(file.displayName.uppercased())
+                                                .font(.system(size: 14, design: .monospaced))
+                                            Text(file.fileName.replacingOccurrences(of: "api_response_", with: "").replacingOccurrences(of: ".json", with: ""))
+                                                .font(.caption)
+                                                .foregroundColor(.gray)
+                                        }
+                                        .padding(.vertical, 4)
+                                    }
+                                }
+                            }
                         }
                     }
+                    .searchable(text: $searchText)
                 }
             }
-            .navigationTitle("Available Files")
+            .navigationTitle("Ligi Disponibile")
             .onAppear(perform: fetchFileList)
         }
     }
@@ -234,13 +333,42 @@ struct FileListView: View {
                     return
                 }
 
-                // Extract .json filenames from HTML anchor tags
                 let matches = html.matches(for: ">([^\\\"]+\\.json)<")
-                self.files = matches
+                self.leagueFiles = matches.map { file in
+                    let trimmed = file
+                        .replacingOccurrences(of: "api_response_", with: "")
+                        .replacingOccurrences(of: ".json", with: "")
+                    let displayName = LEAGUE_NAMES[trimmed] ?? trimmed
+                    let region = regionFromLeagueKey(trimmed)
+                    return LeagueFile(fileName: file, leagueKey: trimmed, displayName: displayName, region: region)
+                }.sorted { $0.region < $1.region || ($0.region == $1.region && $0.displayName < $1.displayName) }
             }
         }
 
         task.resume()
+    }
+
+    var filteredFiles: [LeagueFile] {
+        if searchText.isEmpty {
+            return leagueFiles
+        } else {
+            return leagueFiles.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) }
+        }
+    }
+
+    func regionFromLeagueKey(_ key: String) -> String {
+        if key.contains("uefa") || key.contains("england") || key.contains("denmark") || key.contains("epl") || key.contains("finland") || key.contains("france") || key.contains("germany") || key.contains("spain") || key.contains("italy") || key.contains("portugal") || key.contains("netherlands") || key.contains("sweden") || key.contains("austria") || key.contains("belgium") || key.contains("switzerland") || key.contains("norway") || key.contains("poland") || key.contains("greece") || key.contains("ireland") || key.contains("scotland") || key.contains("turkey") || key.contains("fa_cup") || key.contains("efl_champ") {
+            return "🇪🇺 Europa"
+        } else if key.contains("brazil") || key.contains("argentina") || key.contains("mexico") || key.contains("chile") || key.contains("conmebol") {
+            return "🌎 America de Sud"
+        } else if key.contains("japan") || key.contains("korea") || key.contains("china") {
+            return "🌏 Asia"
+        } else if key.contains("usa") {
+            return "🇺🇸 America de Nord"
+        } else if key.contains("australia") {
+            return "🇦🇺 Oceania"
+        }
+        return "🌐 Alta"
     }
 }
 
@@ -264,6 +392,16 @@ struct FileDetailView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
+            Picker("Sort by", selection: $viewModel.sortMode) {
+                Text("Evaluare").tag(JSONViewModel.SortMode.predictability)
+                Text("Dată").tag(JSONViewModel.SortMode.commenceTime)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding(.horizontal)
+            .onChange(of: viewModel.sortMode) {
+                viewModel.fetchJSON(from: fileName)
+            }
+
             if let content = viewModel.formattedText {
                 ScrollView {
                     Text(content)
@@ -280,7 +418,18 @@ struct FileDetailView: View {
             }
         }
         .padding()
-        .navigationTitle(fileName)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text({
+                    let trimmed = fileName
+                        .replacingOccurrences(of: "api_response_", with: "")
+                        .replacingOccurrences(of: ".json", with: "")
+                    return (LEAGUE_NAMES[trimmed] ?? trimmed).uppercased()
+                }())
+                .font(.system(size: 14, weight: .semibold, design: .default))
+            }
+        }
         .onAppear {
             viewModel.fetchJSON(from: fileName)
         }
