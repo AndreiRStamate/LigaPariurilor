@@ -7,44 +7,13 @@
 
 import SwiftUI
 
-struct ContentView: View {
-@StateObject private var viewModel = JSONViewModel()
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            if let content = viewModel.formattedText {
-                ScrollView {
-                    Text(content)
-                        .font(.system(size: 12, design: .monospaced))
-                        .padding()
-                        .multilineTextAlignment(.leading)
-                }
-            } else if viewModel.isLoading {
-                ProgressView("Loading...")
-            } else if let error = viewModel.errorMessage {
-                Text("Error: \(error)")
-                    .foregroundColor(.red)
-            } else {
-                Text("No data loaded.")
-            }
-        }
-        .padding()
-        .onAppear {
-            viewModel.fetchJSON()
-        }
-    }
-}
-
-#Preview {
-    ContentView()
-}
-
 class JSONViewModel: ObservableObject {
     @Published var formattedText: String?
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    func fetchJSON() {
-        guard let url = URL(string: "https://c910-188-25-128-207.ngrok-free.app/files/api_response_soccer_uefa_champs_league.json") else {
+    func fetchJSON(from fileName: String) {
+        guard let url = URL(string: "http://c910-188-25-128-207.ngrok-free.app/files/\(fileName)") else {
             errorMessage = "Invalid URL"
             return
         }
@@ -68,9 +37,8 @@ class JSONViewModel: ObservableObject {
 
                 do {
                     _ = try JSONSerialization.jsonObject(with: data, options: [])
-                    let matches = JSONMatchParser.parseMatches(from: data, league: "soccer_uefa_champs_league")
+                    let matches = JSONMatchParser.parseMatches(from: data, league: fileName)
 
-                    // Example: Convert match data to a displayable string (can customize later)
                     let formatter = MatchFormatter()
                     self.formattedText = matches.map { formatter.format(match: $0) }.joined(separator: "\n\n")
                 } catch {
@@ -79,6 +47,16 @@ class JSONViewModel: ObservableObject {
             }
         }.resume()
     }
+}
+
+struct ContentView: View {
+    var body: some View {
+        FileListView()
+    }
+}
+
+#Preview {
+    ContentView()
 }
 
 import Foundation
@@ -203,5 +181,108 @@ class MatchFormatter {
         ]
 
         return ([border] + lines + [border]).joined(separator: "\n")
+    }
+}
+
+import SwiftUI
+
+struct FileListView: View {
+    @State private var files: [String] = []
+    @State private var isLoading = true
+    @State private var errorMessage: String? = nil
+
+    var body: some View {
+        NavigationView {
+            VStack {
+                if isLoading {
+                    ProgressView("Loading files...")
+                } else if let errorMessage = errorMessage {
+                    Text("Error: \(errorMessage)")
+                        .foregroundColor(.red)
+                } else {
+                    List(files, id: \.self) { file in
+                        NavigationLink(destination: FileDetailView(fileName: file)) {
+                            Text(file)
+                                .font(.system(size: 14, design: .monospaced))
+                                .padding(.vertical, 4)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Available Files")
+            .onAppear(perform: fetchFileList)
+        }
+    }
+
+    func fetchFileList() {
+        guard let url = URL(string: "http://c910-188-25-128-207.ngrok-free.app/files") else {
+            self.errorMessage = "Invalid URL"
+            return
+        }
+
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            DispatchQueue.main.async {
+                self.isLoading = false
+
+                if let error = error {
+                    self.errorMessage = error.localizedDescription
+                    return
+                }
+
+                guard let data = data, let html = String(data: data, encoding: .utf8) else {
+                    self.errorMessage = "Failed to load data"
+                    return
+                }
+
+                // Extract .json filenames from HTML anchor tags
+                let matches = html.matches(for: ">([^\\\"]+\\.json)<")
+                self.files = matches
+            }
+        }
+
+        task.resume()
+    }
+}
+
+extension String {
+    func matches(for regex: String) -> [String] {
+        do {
+            let regex = try NSRegularExpression(pattern: regex)
+            let nsString = self as NSString
+            let results = regex.matches(in: self, range: NSRange(location: 0, length: nsString.length))
+            return results.map { nsString.substring(with: $0.range(at: 1)) }
+        } catch {
+            print("Regex error: \(error)")
+            return []
+        }
+    }
+}
+
+struct FileDetailView: View {
+    let fileName: String
+    @StateObject private var viewModel = JSONViewModel()
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            if let content = viewModel.formattedText {
+                ScrollView {
+                    Text(content)
+                        .font(.system(size: 12, design: .monospaced))
+                        .padding()
+                }
+            } else if viewModel.isLoading {
+                ProgressView("Loading...")
+            } else if let error = viewModel.errorMessage {
+                Text("Error: \(error)")
+                    .foregroundColor(.red)
+            } else {
+                Text("No data loaded.")
+            }
+        }
+        .padding()
+        .navigationTitle(fileName)
+        .onAppear {
+            viewModel.fetchJSON(from: fileName)
+        }
     }
 }
