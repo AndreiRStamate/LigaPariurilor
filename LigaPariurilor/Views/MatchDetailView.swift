@@ -64,12 +64,13 @@ struct MatchDetailView: View {
             }
 
             if !match.action.isEmpty && showRecommendation {
-                HStack(alignment: .center, spacing: 8) {
+                HStack(spacing: 8) {
                     Image(systemName: "lightbulb")
                         .foregroundColor(.accentColor)
+                        .frame(width: 24)
                     Text("Recomandare: \(match.action)")
-                        .font(.subheadline)
                         .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
@@ -90,9 +91,15 @@ struct MatchDetailView: View {
                         }
                     }
                 }) {
-                    Label("Deschide ChatGPT", systemImage: "bubble.left.and.bubble.right")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack {
+                        Image(systemName: "bubble.left.and.bubble.right")
+                            .foregroundColor(.accentColor)
+                            .frame(width: 24)
+                        Text("Deschide ChatGPT")
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
 
                 Button(action: {
@@ -100,9 +107,15 @@ struct MatchDetailView: View {
                         UIApplication.shared.open(url)
                     }
                 }) {
-                    Label("Deschide Google Gemini", systemImage: "sparkles")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .foregroundColor(.accentColor)
+                            .frame(width: 24)
+                        Text("Deschide Gemini")
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
 
                 Button(action: {
@@ -110,9 +123,15 @@ struct MatchDetailView: View {
                         UIApplication.shared.open(url)
                     }
                 }) {
-                    Label("Deschide Grok (X)", systemImage: "bolt.horizontal")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack {
+                        Image(systemName: "bolt.horizontal")
+                            .foregroundColor(.accentColor)
+                            .frame(width: 24)
+                        Text("Deschide Grok")
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
 
                 Button(action: {
@@ -120,9 +139,15 @@ struct MatchDetailView: View {
                         UIApplication.shared.open(url)
                     }
                 }) {
-                    Label("Deschide Claude AI", systemImage: "brain.head.profile")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack {
+                        Image(systemName: "brain.head.profile")
+                            .foregroundColor(.accentColor)
+                            .frame(width: 24)
+                        Text("Deschide Claude")
+                            .foregroundColor(.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxWidth: .infinity)
                 }
             }
             .padding()
