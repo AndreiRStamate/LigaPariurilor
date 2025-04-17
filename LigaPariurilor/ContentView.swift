@@ -16,6 +16,7 @@ class JSONViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @AppStorage("sortMode") var sortMode: SortMode = .predictability
+    @Published private var allMatches: [Match] = []
 
     enum SortMode: String {
         case commenceTime
@@ -58,12 +59,25 @@ class JSONViewModel: ObservableObject {
                             (ISO8601DateFormatter().date(from: $1.commenceTime) ?? .distantFuture)
                         }
                     }
-                    self.matches = sortedMatches
+                    self.allMatches = matches
+                    self.sortMatches()
                 } catch {
                     self.errorMessage = "Failed to parse JSON"
                 }
             }
         }.resume()
+    }
+    
+    func sortMatches() {
+        switch sortMode {
+        case .predictability:
+            matches = allMatches.sorted { $0.predictability < $1.predictability }
+        case .commenceTime:
+            matches = allMatches.sorted {
+                (ISO8601DateFormatter().date(from: $0.commenceTime) ?? .distantFuture) <
+                (ISO8601DateFormatter().date(from: $1.commenceTime) ?? .distantFuture)
+            }
+        }
     }
 }
 
@@ -447,20 +461,25 @@ struct FileDetailView: View {
     @StateObject private var viewModel = JSONViewModel()
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             Picker("Sort by", selection: $viewModel.sortMode) {
                 Text("Evaluare").tag(JSONViewModel.SortMode.predictability)
                 Text("Dată").tag(JSONViewModel.SortMode.commenceTime)
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
+            .padding(.top)
             .onChange(of: viewModel.sortMode) {
-                viewModel.fetchJSON(from: fileName)
+                viewModel.sortMatches()
             }
 
             if viewModel.isLoading {
+                Spacer()
                 ProgressView("Loading...")
+                    .frame(maxWidth: .infinity)
+                Spacer()
             } else if let error = viewModel.errorMessage {
+                Spacer()
                 VStack(spacing: 12) {
                     Text("Eroare: \(error)")
                         .foregroundColor(.red)
@@ -469,7 +488,8 @@ struct FileDetailView: View {
                     }
                     .buttonStyle(.borderedProminent)
                 }
-                .padding()
+                .frame(maxWidth: .infinity)
+                Spacer()
             } else if !viewModel.matches.isEmpty {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -480,10 +500,13 @@ struct FileDetailView: View {
                     .padding()
                 }
             } else {
+                Spacer()
                 Text("Niciun meci găsit.")
+                    .frame(maxWidth: .infinity)
+                Spacer()
             }
         }
-        .padding()
+        .padding(.bottom)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
