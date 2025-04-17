@@ -78,23 +78,56 @@ struct MatchDetailView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
-            Button(action: {
-                if let url = URL(string: "chatgpt://") {
-                    UIApplication.shared.open(url, options: [:]) { success in
-                        if !success {
-                            if let appStoreURL = URL(string: "https://apps.apple.com/app/openai-chatgpt/id6448311069") {
-                                UIApplication.shared.open(appStoreURL)
+            Group {
+                Button(action: {
+                    if let url = URL(string: "chatgpt://") {
+                        UIApplication.shared.open(url, options: [:]) { success in
+                            if !success {
+                                if let appStoreURL = URL(string: "https://apps.apple.com/app/openai-chatgpt/id6448311069") {
+                                    UIApplication.shared.open(appStoreURL)
+                                }
                             }
                         }
                     }
+                }) {
+                    Label("Deschide ChatGPT", systemImage: "bubble.left.and.bubble.right")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-            }) {
-                Label("Deschide ChatGPT", systemImage: "bubble.left.and.bubble.right")
-                    .font(.headline)
+
+                Button(action: {
+                    if let url = URL(string: "https://gemini.google.com") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    Label("Deschide Google Gemini", systemImage: "sparkles")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                Button(action: {
+                    if let url = URL(string: "https://grok.x.ai") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    Label("Deschide Grok (X)", systemImage: "bolt.horizontal")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                Button(action: {
+                    if let url = URL(string: "https://claude.ai") {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    Label("Deschide Claude AI", systemImage: "brain.head.profile")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
-            .buttonStyle(.borderedProminent)
-            .frame(maxWidth: .infinity)
-            .padding(.top)
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
 
             Spacer()
         }
