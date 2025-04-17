@@ -15,6 +15,8 @@ struct FileListView: View {
     @State private var refreshFlag = UUID()
     @State private var refreshingFile: String? = nil
     @State private var showToast: Bool = false
+    @State private var showFavoritesOnly: Bool = false
+    @State private var favoriteFileNames: Set<String> = FileListView.loadFavoriteFileNames()
 
     func isStale(fileName: String) -> Bool {
         guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return false }
@@ -32,6 +34,18 @@ struct FileListView: View {
     var body: some View {
         NavigationView {
             VStack {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                    TextField("Search", text: $searchText)
+                }
+                .padding(8)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                
+                Toggle("Favorites Only", isOn: $showFavoritesOnly)
+                    .padding(.horizontal)
+                
                 if isLoading {
                     ProgressView("Loading files...")
                 } else if let errorMessage = errorMessage {
@@ -83,10 +97,14 @@ struct FileListView: View {
                                                                 }
                                                             }
                                                         }
-                                                } else if cachedFileNames.contains(file.fileName) {
-                                                    Image(systemName: "checkmark.circle.fill")
-                                                        .foregroundColor(.green)
                                                 }
+                                                Image(systemName: favoriteFileNames.contains(file.fileName) ? "star.fill" : "star")
+                                                    .foregroundColor(.yellow)
+                                                    .onTapGesture {
+                                                        FileListView.toggleFavorite(file.fileName)
+                                                        favoriteFileNames = FileListView.loadFavoriteFileNames()
+                                                    }
+                                                    .padding(.leading, 8)
                                             }
                                         }
                                         .padding(.vertical, 4)
@@ -97,7 +115,6 @@ struct FileListView: View {
                             }
                         }
                     }
-                .searchable(text: $searchText)
                 if showToast {
                     Text("Datele au fost actualizate.")
                         .font(.caption)
@@ -110,10 +127,11 @@ struct FileListView: View {
                 }
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .principal) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Text("Ligi Disponibile")
-                        .font(.headline)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
                 }
             }
             .onAppear(perform: fetchFileList)
@@ -124,11 +142,15 @@ struct FileListView: View {
     }
     
     var filteredFiles: [LeagueFile] {
-        if searchText.isEmpty {
-            return leagueFiles
-        } else {
-            return leagueFiles.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) }
+        // Apply search filter first
+        let base = searchText.isEmpty
+            ? leagueFiles
+            : leagueFiles.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) }
+        // Then apply favorites filter if enabled
+        if showFavoritesOnly {
+            return base.filter { favoriteFileNames.contains($0.fileName) }
         }
+        return base
     }
     
     /// Groups filtered files by region and sorts sections by size
@@ -213,6 +235,25 @@ struct FileListView: View {
             return lhs.displayName < rhs.displayName
         }
         self.leagueFiles = sortedFiles
+    }
+
+    private static func loadFavoriteFileNames() -> Set<String> {
+        let saved = UserDefaults.standard.stringArray(forKey: "favoriteFileNames") ?? []
+        return Set(saved)
+    }
+
+    private static func saveFavoriteFileNames(_ names: Set<String>) {
+        UserDefaults.standard.set(Array(names), forKey: "favoriteFileNames")
+    }
+
+    private static func toggleFavorite(_ fileName: String) {
+        var names = loadFavoriteFileNames()
+        if names.contains(fileName) {
+            names.remove(fileName)
+        } else {
+            names.insert(fileName)
+        }
+        saveFavoriteFileNames(names)
     }
 
 }

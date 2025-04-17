@@ -32,11 +32,14 @@ struct MatchBoxView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("\(match.team1) vs \(match.team2)")
                 .font(.subheadline)
+                .foregroundColor(Color.primary)
             Text(formattedDate(match.commenceTime))
                 .font(.caption)
+                .foregroundColor(Color.primary)
             HStack {
-                Text(String(format: "Predictabilitate: %.2f", match.predictability))
+                Text(String(format: "Evaluare: %.2f", match.predictability))
                     .font(.caption2)
+                    .foregroundColor(Color.primary)
                 Spacer()
                 Text(match.action)
                     .font(.caption2)
