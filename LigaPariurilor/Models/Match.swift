@@ -16,4 +16,27 @@ struct Match: Identifiable {
     let commenceTime: String
     let predictability: Double
     let action: String
+    
+    var formattedAnalysis: String {
+        """
+        Match: \(team1) vs \(team2)
+        Competition: \(league)
+        Date & Time: \(commenceTime)
+
+        Please consider the following:
+        • Recent form (last 5 matches)
+        • League standings
+        • Injuries/suspensions
+        • Weather forecast
+        • Referee
+        • Head-to-head record
+        • Tactical styles
+        • Odds movement if relevant
+        • Possible fatigue
+
+        At the end, provide:
+        • 5 likely bets with brief explanations
+        • 3 high-probability bets with strong justifications
+        """
+    }
 }

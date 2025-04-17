@@ -11,6 +11,8 @@ struct MatchDetailView: View {
     let match: Match
     @State private var animateOdds = false
     @State private var showRecommendation = false
+    @State private var showingAnalysis = false
+    @State private var showCopyToast = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -77,6 +79,65 @@ struct MatchDetailView: View {
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            Button(action: {
+                showingAnalysis = true
+            }) {
+                HStack {
+                    Image(systemName: "doc.text.magnifyingglass")
+                        .foregroundColor(.accentColor)
+                        .frame(width: 24)
+                    Text("Afișează Prompt")
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+            }
+            .sheet(isPresented: $showingAnalysis) {
+                VStack(alignment: .leading, spacing: 16) {
+                    ScrollView {
+                        Text(match.formattedAnalysis)
+                            .font(.callout)
+                            .foregroundColor(.primary)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .background(Color(.systemGray6))
+                    .cornerRadius(12)
+                    .padding()
+
+                    Button(action: {
+                        UIPasteboard.general.string = match.formattedAnalysis
+                        showCopyToast = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            showCopyToast = false
+                        }
+                    }) {
+                        Label("Copiază prompt", systemImage: "doc.on.doc")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .padding()
+                }
+                .presentationDetents([.medium, .large])
+                .overlay(
+                    Group {
+                        if showCopyToast {
+                            Text("Prompt-ul a fost copiat")
+                                .font(.caption)
+                                .padding(8)
+                                .background(Color.black.opacity(0.7))
+                                .foregroundColor(.white)
+                                .cornerRadius(8)
+                                .padding(.bottom, 20)
+                                .transition(.opacity)
+                        }
+                    },
+                    alignment: .bottom
+                )
             }
 
             Group {
