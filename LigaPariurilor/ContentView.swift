@@ -6,9 +6,13 @@
 //
 
 import SwiftUI
+// Central API configuration
+struct APIConfig {
+    static let baseURL = "http://a6ae-188-25-128-207.ngrok-free.app"
+}
 
 class JSONViewModel: ObservableObject {
-    @Published var formattedText: String?
+    @Published var matches: [Match] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
     @AppStorage("sortMode") var sortMode: SortMode = .predictability
@@ -18,7 +22,8 @@ class JSONViewModel: ObservableObject {
         case predictability
     }
     func fetchJSON(from fileName: String) {
-        guard let url = URL(string: "http://c910-188-25-128-207.ngrok-free.app/files/\(fileName)") else {
+
+        guard let url = URL(string: "\(APIConfig.baseURL)/files/\(fileName)") else {
             errorMessage = "Invalid URL"
             return
         }
@@ -43,7 +48,6 @@ class JSONViewModel: ObservableObject {
                 do {
                     _ = try JSONSerialization.jsonObject(with: data, options: [])
                     let matches = JSONMatchParser.parseMatches(from: data)
-                    let formatter = MatchFormatter()
                     let sortedMatches: [Match]
                     switch self.sortMode {
                     case .predictability:
@@ -54,12 +58,55 @@ class JSONViewModel: ObservableObject {
                             (ISO8601DateFormatter().date(from: $1.commenceTime) ?? .distantFuture)
                         }
                     }
-                    self.formattedText = sortedMatches.map { formatter.format(match: $0) }.joined(separator: "\n\n")
+                    self.matches = sortedMatches
                 } catch {
                     self.errorMessage = "Failed to parse JSON"
                 }
             }
         }.resume()
+    }
+}
+
+struct MatchBoxView: View {
+    let match: Match
+
+    private func formattedDate(_ isoString: String) -> String {
+        if let date = ISO8601DateFormatter().date(from: isoString) {
+            let calendar = Calendar.current
+            let timeFormatter = DateFormatter()
+            timeFormatter.dateFormat = "HH:mm"
+            if calendar.isDateInToday(date) {
+                return "Azi la \(timeFormatter.string(from: date))"
+            } else if calendar.isDateInTomorrow(date) {
+                return "Mâine la \(timeFormatter.string(from: date))"
+            } else {
+                let formatter = DateFormatter()
+                formatter.dateFormat = "dd-MM-yyyy HH:mm"
+                return formatter.string(from: date)
+            }
+        }
+        return isoString
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(LEAGUE_NAMES[match.league] ?? match.league)
+                .font(.headline)
+            Text("\(match.team1) vs \(match.team2)")
+                .font(.subheadline)
+            Text(formattedDate(match.commenceTime))
+                .font(.caption)
+            HStack {
+                Text(String(format: "Predictabilitate: %.2f", match.predictability))
+                    .font(.caption2)
+                Spacer()
+                Text(match.action)
+                    .font(.caption2)
+                    .foregroundColor(match.predictability < 1.0 ? .green : .red)
+            }
+        }
+        .padding()
+        .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
     }
 }
 
@@ -314,7 +361,7 @@ struct FileListView: View {
     }
 
     func fetchFileList() {
-        guard let url = URL(string: "http://c910-188-25-128-207.ngrok-free.app/files") else {
+        guard let url = URL(string: "\(APIConfig.baseURL)/files") else {
             self.errorMessage = "Invalid URL"
             return
         }
@@ -402,17 +449,20 @@ struct FileDetailView: View {
                 viewModel.fetchJSON(from: fileName)
             }
 
-            if let content = viewModel.formattedText {
-                ScrollView {
-                    Text(content)
-                        .font(.system(size: 12, design: .monospaced))
-                        .padding()
-                }
-            } else if viewModel.isLoading {
+            if viewModel.isLoading {
                 ProgressView("Loading...")
             } else if let error = viewModel.errorMessage {
                 Text("Error: \(error)")
                     .foregroundColor(.red)
+            } else if !viewModel.matches.isEmpty {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        ForEach(viewModel.matches) { match in
+                            MatchBoxView(match: match)
+                        }
+                    }
+                    .padding()
+                }
             } else {
                 Text("No data loaded.")
             }
