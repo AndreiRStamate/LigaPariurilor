@@ -8,5 +8,5 @@
 import Foundation
 
 struct APIConfig {
-    static let baseURL = URL(string: "http://a6ae-188-25-128-207.ngrok-free.app")!
+    static let baseURL = URL(string: "http://5093-188-25-128-207.ngrok-free.app")!
 }

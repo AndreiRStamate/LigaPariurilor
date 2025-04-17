@@ -78,6 +78,24 @@ struct MatchDetailView: View {
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
 
+            Button(action: {
+                if let url = URL(string: "chatgpt://") {
+                    UIApplication.shared.open(url, options: [:]) { success in
+                        if !success {
+                            if let appStoreURL = URL(string: "https://apps.apple.com/app/openai-chatgpt/id6448311069") {
+                                UIApplication.shared.open(appStoreURL)
+                            }
+                        }
+                    }
+                }
+            }) {
+                Label("Deschide ChatGPT", systemImage: "bubble.left.and.bubble.right")
+                    .font(.headline)
+            }
+            .buttonStyle(.borderedProminent)
+            .frame(maxWidth: .infinity)
+            .padding(.top)
+
             Spacer()
         }
         .padding()
