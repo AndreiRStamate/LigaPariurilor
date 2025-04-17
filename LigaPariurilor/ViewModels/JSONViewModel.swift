@@ -159,7 +159,7 @@ fileprivate class JSONMatchParser {
                 odds: [t1: best1, t2: best2],
                 commenceTime: commenceTime,
                 predictability: abs(best1 - best2),
-                action: abs(best1 - best2) < 1.0 ? "PARIUS SIGUR" : "PARIU RISCANT"
+                action: abs(best1 - best2) < 1.0 ? "PARIU SIGUR" : "PARIU RISCANT"
             )
 
             matches.append(match)
