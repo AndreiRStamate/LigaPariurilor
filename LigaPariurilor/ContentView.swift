@@ -330,8 +330,17 @@ struct FileListView: View {
                 if isLoading {
                     ProgressView("Loading files...")
                 } else if let errorMessage = errorMessage {
-                    Text("Error: \(errorMessage)")
-                        .foregroundColor(.red)
+                    VStack(spacing: 12) {
+                        Text("Eroare: \(errorMessage)")
+                            .foregroundColor(.red)
+                        Button("Reîncarcă") {
+                            self.errorMessage = nil
+                            self.isLoading = true
+                            self.fetchFileList()
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding()
                 } else {
                     List {
                         ForEach(Dictionary(grouping: filteredFiles, by: { $0.region })
@@ -452,8 +461,15 @@ struct FileDetailView: View {
             if viewModel.isLoading {
                 ProgressView("Loading...")
             } else if let error = viewModel.errorMessage {
-                Text("Error: \(error)")
-                    .foregroundColor(.red)
+                VStack(spacing: 12) {
+                    Text("Eroare: \(error)")
+                        .foregroundColor(.red)
+                    Button("Încearcă din nou") {
+                        viewModel.fetchJSON(from: fileName)
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .padding()
             } else if !viewModel.matches.isEmpty {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -464,7 +480,7 @@ struct FileDetailView: View {
                     .padding()
                 }
             } else {
-                Text("No data loaded.")
+                Text("Niciun meci găsit.")
             }
         }
         .padding()
