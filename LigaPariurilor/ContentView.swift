@@ -22,48 +22,62 @@ class JSONViewModel: ObservableObject {
         case commenceTime
         case predictability
     }
+    
+    private func cacheURL(for fileName: String) -> URL? {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent(fileName)
+    }
+    
+    private func saveToCache(_ data: Data, fileName: String) {
+        guard let url = cacheURL(for: fileName) else { return }
+        try? data.write(to: url)
+    }
+    
+    private func loadFromCache(fileName: String) -> Data? {
+        guard let url = cacheURL(for: fileName),
+              FileManager.default.fileExists(atPath: url.path) else { return nil }
+        return try? Data(contentsOf: url)
+    }
+    
+    private func parseJSON(_ data: Data) {
+        do {
+            _ = try JSONSerialization.jsonObject(with: data, options: [])
+            let matches = JSONMatchParser.parseMatches(from: data)
+            self.allMatches = matches
+            self.sortMatches()
+        } catch {
+            self.errorMessage = "Failed to parse JSON"
+        }
+    }
     func fetchJSON(from fileName: String) {
-
+        if let cachedData = loadFromCache(fileName: fileName) {
+            parseJSON(cachedData)
+            return
+        }
+        
         guard let url = URL(string: "\(APIConfig.baseURL)/files/\(fileName)") else {
             errorMessage = "Invalid URL"
             return
         }
-
+        
         isLoading = true
         errorMessage = nil
-
+        
         URLSession.shared.dataTask(with: url) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
-
+                
                 if let error = error {
                     self.errorMessage = error.localizedDescription
                     return
                 }
-
+                
                 guard let data = data else {
                     self.errorMessage = "No data received"
                     return
                 }
-
-                do {
-                    _ = try JSONSerialization.jsonObject(with: data, options: [])
-                    let matches = JSONMatchParser.parseMatches(from: data)
-                    let sortedMatches: [Match]
-                    switch self.sortMode {
-                    case .predictability:
-                        sortedMatches = matches.sorted { $0.predictability < $1.predictability }
-                    case .commenceTime:
-                        sortedMatches = matches.sorted {
-                            (ISO8601DateFormatter().date(from: $0.commenceTime) ?? .distantFuture) <
-                            (ISO8601DateFormatter().date(from: $1.commenceTime) ?? .distantFuture)
-                        }
-                    }
-                    self.allMatches = matches
-                    self.sortMatches()
-                } catch {
-                    self.errorMessage = "Failed to parse JSON"
-                }
+                
+                self.saveToCache(data, fileName: fileName)
+                self.parseJSON(data)
             }
         }.resume()
     }
@@ -337,6 +351,7 @@ struct FileListView: View {
     @State private var isLoading = true
     @State private var errorMessage: String? = nil
     @State private var searchText: String = ""
+    
 
     var body: some View {
         NavigationView {
@@ -356,18 +371,27 @@ struct FileListView: View {
                     }
                     .padding()
                 } else {
+                    // Offline banner removed
+                    
                     List {
                         ForEach(Dictionary(grouping: filteredFiles, by: { $0.region })
                             .sorted(by: { $0.value.count > $1.value.count }), id: \.key) { region, items in
                             Section(header: Text(region)) {
                                 ForEach(items) { file in
                                     NavigationLink(destination: FileDetailView(fileName: file.fileName)) {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(file.displayName.uppercased())
-                                                .font(.system(size: 14, design: .monospaced))
-                                            Text(file.fileName.replacingOccurrences(of: "api_response_", with: "").replacingOccurrences(of: ".json", with: ""))
-                                                .font(.caption)
-                                                .foregroundColor(.gray)
+                                        HStack {
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(file.displayName.uppercased())
+                                                    .font(.system(size: 14, design: .monospaced))
+                                                Text(file.fileName.replacingOccurrences(of: "api_response_", with: "").replacingOccurrences(of: ".json", with: ""))
+                                                    .font(.caption)
+                                                    .foregroundColor(.gray)
+                                            }
+                                            Spacer()
+                                            if cachedFileNames.contains(file.fileName) {
+                                                Image(systemName: "checkmark.circle.fill")
+                                                    .foregroundColor(.green)
+                                            }
                                         }
                                         .padding(.vertical, 4)
                                     }
@@ -378,11 +402,18 @@ struct FileListView: View {
                     .searchable(text: $searchText)
                 }
             }
-            .navigationTitle("Ligi Disponibile")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Ligi Disponibile")
+                        .font(.headline)
+                }
+            }
             .onAppear(perform: fetchFileList)
         }
     }
-
+    private var cachedFileNames: Set<String> {
+        Set(loadCachedFiles().map { $0.fileName })
+    }
     func fetchFileList() {
         guard let url = URL(string: "\(APIConfig.baseURL)/files") else {
             self.errorMessage = "Invalid URL"
@@ -394,7 +425,17 @@ struct FileListView: View {
                 self.isLoading = false
 
                 if let error = error {
-                    self.errorMessage = error.localizedDescription
+                    let cachedFileNames = self.loadFileListFromCache()
+                    if cachedFileNames.isEmpty {
+                        let cached = loadCachedFiles()
+                        if cached.isEmpty {
+                            self.errorMessage = error.localizedDescription
+                        } else {
+                            self.leagueFiles = cached
+                        }
+                    } else {
+                        self.populateLeagueFiles(from: cachedFileNames)
+                    }
                     return
                 }
 
@@ -404,14 +445,13 @@ struct FileListView: View {
                 }
 
                 let matches = html.matches(for: ">([^\\\"]+\\.json)<")
-                self.leagueFiles = matches.map { file in
-                    let trimmed = file
-                        .replacingOccurrences(of: "api_response_", with: "")
-                        .replacingOccurrences(of: ".json", with: "")
-                    let displayName = LEAGUE_NAMES[trimmed] ?? trimmed
-                    let region = regionFromLeagueKey(trimmed)
-                    return LeagueFile(fileName: file, leagueKey: trimmed, displayName: displayName, region: region)
-                }.sorted { $0.region < $1.region || ($0.region == $1.region && $0.displayName < $1.displayName) }
+                self.saveFileListToCache(matches)
+            self.populateLeagueFiles(from: matches)
+            for file in matches {
+                if loadFromCache(fileName: file) == nil {
+                    fetchAndCacheFile(file)
+                }
+            }
             }
         }
 
@@ -426,20 +466,33 @@ struct FileListView: View {
         }
     }
 
-    func regionFromLeagueKey(_ key: String) -> String {
-        if key.contains("uefa") || key.contains("england") || key.contains("denmark") || key.contains("epl") || key.contains("finland") || key.contains("france") || key.contains("germany") || key.contains("spain") || key.contains("italy") || key.contains("portugal") || key.contains("netherlands") || key.contains("sweden") || key.contains("austria") || key.contains("belgium") || key.contains("switzerland") || key.contains("norway") || key.contains("poland") || key.contains("greece") || key.contains("ireland") || key.contains("scotland") || key.contains("turkey") || key.contains("fa_cup") || key.contains("efl_champ") {
-            return "🇪🇺 Europa"
-        } else if key.contains("brazil") || key.contains("argentina") || key.contains("mexico") || key.contains("chile") || key.contains("conmebol") {
-            return "🌎 America de Sud"
-        } else if key.contains("japan") || key.contains("korea") || key.contains("china") {
-            return "🌏 Asia"
-        } else if key.contains("usa") {
-            return "🇺🇸 America de Nord"
-        } else if key.contains("australia") {
-            return "🇦🇺 Oceania"
-        }
-        return "🌐 Alta"
+    func fileListCacheURL() -> URL? {
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_cache.txt")
     }
+
+    func saveFileListToCache(_ files: [String]) {
+        guard let url = fileListCacheURL() else { return }
+        let text = files.joined(separator: "\n")
+        try? text.write(to: url, atomically: true, encoding: .utf8)
+    }
+
+    func loadFileListFromCache() -> [String] {
+    guard let url = fileListCacheURL(),
+          let content = try? String(contentsOf: url, encoding: .utf8) else { return [] }
+        return content.components(separatedBy: "\n")
+    }
+
+    func populateLeagueFiles(from matches: [String]) {
+        self.leagueFiles = matches.map { file in
+            let trimmed = file
+                .replacingOccurrences(of: "api_response_", with: "")
+                .replacingOccurrences(of: ".json", with: "")
+            let displayName = LEAGUE_NAMES[trimmed] ?? trimmed
+            let region = regionFromLeagueKey(trimmed)
+            return LeagueFile(fileName: file, leagueKey: trimmed, displayName: displayName, region: region)
+        }.sorted { $0.region < $1.region || ($0.region == $1.region && $0.displayName < $1.displayName) }
+    }
+
 }
 
 extension String {
@@ -524,3 +577,64 @@ struct FileDetailView: View {
         }
     }
 }
+
+func loadCachedFiles() -> [LeagueFile] {
+    let fileManager = FileManager.default
+    guard let directory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+        return []
+    }
+
+    do {
+        let files = try fileManager.contentsOfDirectory(atPath: directory.path)
+            .filter { $0.hasSuffix(".json") }
+            .map { file in
+                let trimmed = file
+                    .replacingOccurrences(of: "api_response_", with: "")
+                    .replacingOccurrences(of: ".json", with: "")
+                let displayName = LEAGUE_NAMES[trimmed] ?? trimmed
+                let region = regionFromLeagueKey(trimmed)
+                return LeagueFile(fileName: file, leagueKey: trimmed, displayName: displayName, region: region)
+            }
+        return files.sorted { $0.region < $1.region || ($0.region == $1.region && $0.displayName < $1.displayName) }
+    } catch {
+        print("Error reading cached files: \(error)")
+        return []
+    }
+}
+
+func regionFromLeagueKey(_ key: String) -> String {
+    if key.contains("uefa") || key.contains("england") || key.contains("denmark") || key.contains("epl") || key.contains("finland") || key.contains("france") || key.contains("germany") || key.contains("spain") || key.contains("italy") || key.contains("portugal") || key.contains("netherlands") || key.contains("sweden") || key.contains("austria") || key.contains("belgium") || key.contains("switzerland") || key.contains("norway") || key.contains("poland") || key.contains("greece") || key.contains("ireland") || key.contains("scotland") || key.contains("turkey") || key.contains("fa_cup") || key.contains("efl_champ") {
+        return "🇪🇺 Europa"
+    } else if key.contains("brazil") || key.contains("argentina") || key.contains("mexico") || key.contains("chile") || key.contains("conmebol") {
+        return "🌎 America de Sud"
+    } else if key.contains("japan") || key.contains("korea") || key.contains("china") {
+        return "🌏 Asia"
+    } else if key.contains("usa") {
+        return "🇺🇸 America de Nord"
+    } else if key.contains("australia") {
+        return "🇦🇺 Oceania"
+    }
+    return "🌐 Alta"
+}
+
+    func fetchAndCacheFile(_ fileName: String) {
+        guard let url = URL(string: "\(APIConfig.baseURL)/files/\(fileName)") else { return }
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data = data {
+                saveToCache(data, fileName: fileName)
+            }
+        }.resume()
+    }
+    
+    func saveToCache(_ data: Data, fileName: String) {
+        guard let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
+                .appendingPathComponent(fileName) else { return }
+        try? data.write(to: url)
+    }
+    
+    func loadFromCache(fileName: String) -> Data? {
+        guard let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
+                .appendingPathComponent(fileName),
+              FileManager.default.fileExists(atPath: url.path) else { return nil }
+        return try? Data(contentsOf: url)
+    }
