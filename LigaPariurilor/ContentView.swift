@@ -7,8 +7,8 @@
 
 import SwiftUI
 // Cache expiry settings
-let fullCacheExpiry: TimeInterval = 20  // 24 hours
-let staleThreshold: TimeInterval = 10   // 12 hours
+let fullCacheExpiry: TimeInterval = 24 * 60 * 60  // 24 hours
+let staleThreshold: TimeInterval = 12 * 60 * 60   // 12 hours
 
 // Central API configuration
 struct APIConfig {
@@ -122,8 +122,6 @@ struct MatchBoxView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(LEAGUE_NAMES[match.league] ?? match.league)
-                .font(.headline)
             Text("\(match.team1) vs \(match.team2)")
                 .font(.subheadline)
             Text(formattedDate(match.commenceTime))
@@ -138,13 +136,19 @@ struct MatchBoxView: View {
             }
         }
         .padding()
-        .background(RoundedRectangle(cornerRadius: 8).stroke(Color.gray))
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(.systemGray6))
+        )
+        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        .contentShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
 struct ContentView: View {
     var body: some View {
         FileListView()
+            .accentColor(.black)
     }
 }
 
@@ -566,7 +570,7 @@ struct FileDetailView: View {
     @StateObject private var viewModel = JSONViewModel()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 16) {
             Picker("Sort by", selection: $viewModel.sortMode) {
                 Text("Evaluare").tag(JSONViewModel.SortMode.predictability)
                 Text("Dată").tag(JSONViewModel.SortMode.commenceTime)
@@ -599,7 +603,9 @@ struct FileDetailView: View {
                 ScrollView {
                     VStack(spacing: 16) {
                         ForEach(viewModel.matches) { match in
-                            MatchBoxView(match: match)
+                            NavigationLink(destination: MatchDetailView(match: match)) {
+                                MatchBoxView(match: match)
+                            }
                         }
                     }
                     .padding()
@@ -736,3 +742,40 @@ func regionFromLeagueKey(_ key: String) -> String {
         }
         return try? Data(contentsOf: url)
     }
+
+struct MatchDetailView: View {
+    let match: Match
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(LEAGUE_NAMES[match.league] ?? match.league)
+                .font(.title2)
+                .bold()
+            Text("\(match.team1) vs \(match.team2)")
+                .font(.title3)
+            Text("Ora de start: \(match.commenceTime)")
+                .font(.subheadline)
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Cote:")
+                    .font(.headline)
+                ForEach(match.odds.sorted(by: { $0.key < $1.key }), id: \.key) { team, odd in
+                    Text("\(team): \(odd)")
+                }
+            }
+
+            Divider()
+
+            Text("Predictabilitate: \(String(format: "%.2f", match.predictability))")
+            Text("Recomandare: \(match.action)")
+                .foregroundColor(match.predictability < 1.0 ? .green : .red)
+
+            Spacer()
+        }
+        .padding()
+        .navigationTitle("Detalii Meci")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
