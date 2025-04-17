@@ -300,50 +300,6 @@ let LEAGUE_NAMES: [String: String] = [
     "soccer_usa_mls": "USA Major League Soccer"
 ]
 
-class MatchFormatter {
-    func format(match: Match) -> String {
-        let totalWidth = 44
-        let border = "+" + String(repeating: "-", count: totalWidth - 2) + "+"
-
-        let dateStr: String
-        if let date = ISO8601DateFormatter().date(from: match.commenceTime) {
-            let calendar = Calendar.current
-            if calendar.isDateInToday(date) {
-                let timeFormatter = DateFormatter()
-                timeFormatter.dateFormat = "HH:mm"
-                dateStr = "Azi la \(timeFormatter.string(from: date))"
-            } else if calendar.isDateInTomorrow(date) {
-                let timeFormatter = DateFormatter()
-                timeFormatter.dateFormat = "HH:mm"
-                dateStr = "Mâine la \(timeFormatter.string(from: date))"
-            } else {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "dd-MM-yyyy HH:mm"
-                dateStr = formatter.string(from: date)
-            }
-        } else {
-            dateStr = match.commenceTime
-        }
-
-        func center(_ text: String) -> String {
-            let trimmed = text.count > (totalWidth - 2) ? String(text.prefix(totalWidth - 5)) + "..." : text
-            let padding = max(0, (totalWidth - 2 - trimmed.count) / 2)
-            let line = String(repeating: " ", count: padding) + trimmed
-            return "|" + line.padding(toLength: totalWidth - 2, withPad: " ", startingAt: 0) + "|"
-        }
-
-        let lines = [
-            center(LEAGUE_NAMES[match.league] ?? match.league),
-            center("\(match.team1) vs \(match.team2)"),
-            center(dateStr),
-            center(String(format: "%.2f", match.predictability)),
-            center(match.action)
-        ]
-
-        return ([border] + lines + [border]).joined(separator: "\n")
-    }
-}
-
 import SwiftUI
 
 struct LeagueFile: Identifiable {
