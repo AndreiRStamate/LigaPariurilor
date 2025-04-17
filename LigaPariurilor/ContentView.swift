@@ -6,6 +6,10 @@
 //
 
 import SwiftUI
+// Cache expiry settings
+let fullCacheExpiry: TimeInterval = 20  // 24 hours
+let staleThreshold: TimeInterval = 10   // 12 hours
+
 // Central API configuration
 struct APIConfig {
     static let baseURL = "http://a6ae-188-25-128-207.ngrok-free.app"
@@ -351,6 +355,21 @@ struct FileListView: View {
     @State private var isLoading = true
     @State private var errorMessage: String? = nil
     @State private var searchText: String = ""
+    @State private var refreshFlag = UUID()
+    @State private var refreshingFile: String? = nil
+    @State private var showToast: Bool = false
+
+    func isStale(fileName: String) -> Bool {
+        guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return false }
+        let metaURL = dir.appendingPathComponent(fileName).appendingPathExtension("meta")
+        if let metaData = try? Data(contentsOf: metaURL),
+           let json = try? JSONSerialization.jsonObject(with: metaData) as? [String: Any],
+           let timestamp = json["cachedAt"] as? TimeInterval {
+            let age = Date().timeIntervalSince1970 - timestamp
+            return age > staleThreshold
+        }
+        return false
+    }
     
 
     var body: some View {
@@ -378,6 +397,7 @@ struct FileListView: View {
                             .sorted(by: { $0.value.count > $1.value.count }), id: \.key) { region, items in
                             Section(header: Text(region)) {
                                 ForEach(items) { file in
+                                    Group {
                                     NavigationLink(destination: FileDetailView(fileName: file.fileName)) {
                                         HStack {
                                             VStack(alignment: .leading, spacing: 4) {
@@ -388,18 +408,50 @@ struct FileListView: View {
                                                     .foregroundColor(.gray)
                                             }
                                             Spacer()
-                                            if cachedFileNames.contains(file.fileName) {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .foregroundColor(.green)
+                                            Group {
+                                                if refreshingFile == file.fileName {
+                                                    ProgressView()
+                                                        .scaleEffect(0.6)
+                                                } else if isStale(fileName: file.fileName) {
+                                                    Image(systemName: "arrow.clockwise.circle")
+                                                        .foregroundColor(.orange)
+                                                        .onTapGesture {
+                                                            refreshingFile = file.fileName
+                                                            fetchAndCacheFile(file.fileName)
+                                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                                                refreshingFile = nil
+                                                                refreshFlag = UUID()
+                                                                showToast = true
+                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                                    showToast = false
+                                                                }
+                                                            }
+                                                        }
+                                                } else if cachedFileNames.contains(file.fileName) {
+                                                    Image(systemName: "checkmark.circle.fill")
+                                                        .foregroundColor(.green)
+                                                }
                                             }
                                         }
                                         .padding(.vertical, 4)
                                     }
+                                    }
+                                    .id(refreshFlag)
                                 }
                             }
                         }
                     }
-                    .searchable(text: $searchText)
+                .searchable(text: $searchText)
+                if showToast {
+                    Text("Datele au fost actualizate.")
+                        .font(.caption)
+                        .padding(8)
+                        .background(Color.black.opacity(0.7))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .padding(.bottom, 16)
+                        .transition(.opacity)
+                }
                 }
             }
             .toolbar {
@@ -619,22 +671,68 @@ func regionFromLeagueKey(_ key: String) -> String {
 
     func fetchAndCacheFile(_ fileName: String) {
         guard let url = URL(string: "\(APIConfig.baseURL)/files/\(fileName)") else { return }
-        URLSession.shared.dataTask(with: url) { data, _, _ in
+        var request = URLRequest(url: url)
+
+        if let cachedDate = getCachedDate(for: fileName) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "E, dd MMM yyyy HH:mm:ss zzz"
+            formatter.locale = Locale(identifier: "en_US")
+            formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            request.setValue(formatter.string(from: cachedDate), forHTTPHeaderField: "If-Modified-Since")
+        }
+
+        URLSession.shared.dataTask(with: request) { data, response, _ in
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 304 {
+                // Refresh cache timestamp
+                guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+                let metaURL = dir.appendingPathComponent(fileName).appendingPathExtension("meta")
+                let metadata = ["cachedAt": Date().timeIntervalSince1970]
+                if let metaData = try? JSONSerialization.data(withJSONObject: metadata) {
+                    try? metaData.write(to: metaURL)
+                }
+                return
+            }
+
             if let data = data {
                 saveToCache(data, fileName: fileName)
             }
         }.resume()
     }
     
+    func getCachedDate(for fileName: String) -> Date? {
+        guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+        let metaURL = dir.appendingPathComponent(fileName).appendingPathExtension("meta")
+        if let metaData = try? Data(contentsOf: metaURL),
+           let json = try? JSONSerialization.jsonObject(with: metaData) as? [String: Any],
+           let timestamp = json["cachedAt"] as? TimeInterval {
+            return Date(timeIntervalSince1970: timestamp)
+        }
+        return nil
+    }
+
+
     func saveToCache(_ data: Data, fileName: String) {
         guard let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
                 .appendingPathComponent(fileName) else { return }
         try? data.write(to: url)
+        let metadata = ["cachedAt": Date().timeIntervalSince1970]
+        if let metaData = try? JSONSerialization.data(withJSONObject: metadata) {
+            try? metaData.write(to: url.appendingPathExtension("meta"))
+        }
     }
     
     func loadFromCache(fileName: String) -> Data? {
         guard let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
                 .appendingPathComponent(fileName),
               FileManager.default.fileExists(atPath: url.path) else { return nil }
+        let metaURL = url.appendingPathExtension("meta")
+        if let metaData = try? Data(contentsOf: metaURL),
+           let json = try? JSONSerialization.jsonObject(with: metaData) as? [String: Any],
+           let timestamp = json["cachedAt"] as? TimeInterval {
+            let age = Date().timeIntervalSince1970 - timestamp
+            if age > fullCacheExpiry {
+                return nil
+            }
+        }
         return try? Data(contentsOf: url)
     }
