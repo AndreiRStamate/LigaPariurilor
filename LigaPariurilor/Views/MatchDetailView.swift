@@ -91,6 +91,9 @@ struct MatchDetailView: View {
                     Text("Afișează Prompt")
                         .foregroundColor(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.secondary)
                 }
                 .padding()
                 .background(Color(.systemGray6))
@@ -159,6 +162,9 @@ struct MatchDetailView: View {
                         Text("Deschide ChatGPT")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -175,6 +181,9 @@ struct MatchDetailView: View {
                         Text("Deschide Gemini")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -191,6 +200,9 @@ struct MatchDetailView: View {
                         Text("Deschide Grok")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -207,6 +219,9 @@ struct MatchDetailView: View {
                         Text("Deschide Claude")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
