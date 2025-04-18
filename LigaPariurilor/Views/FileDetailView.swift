@@ -10,6 +10,7 @@ import SwiftUI
 struct FileDetailView: View {
     let fileName: String
     @StateObject private var viewModel = JSONViewModel()
+    @State private var showPastEvents = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -22,6 +23,14 @@ struct FileDetailView: View {
             .padding(.top)
             .onChange(of: viewModel.sortMode) {
                 viewModel.sortMatches()
+            }
+
+            if viewModel.matches.contains(where: {
+                guard let date = ISO8601DateFormatter().date(from: $0.commenceTime) else { return false }
+                return date <= Date()
+            }) {
+                Toggle("Afișează evenimentele trecute", isOn: $showPastEvents)
+                    .padding(.horizontal)
             }
 
             if viewModel.isLoading {
@@ -44,7 +53,10 @@ struct FileDetailView: View {
             } else if !viewModel.matches.isEmpty {
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(viewModel.matches) { match in
+                        ForEach(viewModel.matches.filter {
+                            guard let date = ISO8601DateFormatter().date(from: $0.commenceTime) else { return false }
+                            return showPastEvents || date > Date()
+                        }) { match in
                             NavigationLink(destination: MatchDetailView(match: match)) {
                                 MatchBoxView(match: match)
                             }
