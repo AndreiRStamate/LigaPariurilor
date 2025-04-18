@@ -15,7 +15,7 @@ struct FileListView: View {
     @State private var refreshFlag = UUID()
     @State private var refreshingFile: String? = nil
     @State private var showToast: Bool = false
-    @State private var showFavoritesOnly: Bool = false
+    @AppStorage("showFavoritesOnly") private var showFavoritesOnly: Bool = false
     @State private var favoriteFileNames: Set<String> = FileListView.loadFavoriteFileNames()
 
     func isStale(fileName: String) -> Bool {
