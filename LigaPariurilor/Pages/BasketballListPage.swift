@@ -17,6 +17,9 @@ struct BasketballListPage: View {
     @State private var showToast: Bool = false
     @AppStorage("showFavoritesOnly") private var showFavoritesOnly: Bool = false
     @State private var favoriteFileNames: Set<String> = loadFavoriteFileNames()
+    @State private var showingSettings = false
+    /// User-editable analysis template
+    @AppStorage("analysisTemplate") private var analysisTemplate: String = Match.defaultAnalysisTemplate
 
     var body: some View {
         NavigationView {
@@ -26,11 +29,56 @@ struct BasketballListPage: View {
                 contentView
                 toastView
             }
+            .padding(.top, 20)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Text("Ligi Disponibile")
                         .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.5)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 20)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingSettings.toggle()
+                    }) {
+                        Image(systemName: "ellipsis.circle")
+                            .imageScale(.large)
+                    }
+                }
+            }
+            .sheet(isPresented: $showingSettings) {
+                NavigationView {
+                    Form {
+                        Section(header: Text("Șablon prompt").font(.subheadline)) {
+                            TextEditor(text: $analysisTemplate)
+                                .font(.callout)
+                                .frame(minHeight: 200)
+                        }
+                        Section(header: Text("Cuvinte cheie").font(.subheadline)) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("{team1} – Echipa gazdă")
+                                Text("{team2} – Echipa oaspete")
+                                Text("{league} – Competiție/Ligă")
+                                Text("{commenceTime} – Dată și oră")
+                            }
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        }
+                        Section {
+                            Button("Revino la prompt-ul inițial") {
+                                analysisTemplate = Match.defaultAnalysisTemplate
+                            }
+                            .foregroundColor(.red)
+                        }
+                    }
+                    .navigationTitle("Editare prompt")
+                    .navigationBarItems(trailing: Button("Gata") {
+                        showingSettings = false
+                    })
                 }
             }
             .onAppear(perform: fetchFileList)
@@ -77,7 +125,7 @@ struct BasketballListPage: View {
                     Section(header: Text(section.key)) {
                         ForEach(section.value) { file in
                             NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.basketballURL)) {
-                                BasketBallFileRow(
+                                BasketballFileRow(
                                     file: file,
                                     refreshingFile: $refreshingFile,
                                     favoriteFileNames: $favoriteFileNames,
@@ -211,7 +259,7 @@ struct BasketballListPage: View {
     }
 
     func fileListCacheURL() -> URL? {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_bascketball_cache.txt")
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_basketball_cache.txt")
     }
 
     func saveFileListToCache(_ files: [String]) {
@@ -264,7 +312,7 @@ struct BasketballListPage: View {
     }
 }
 
-struct BasketBallFileRow: View {
+struct BasketballFileRow: View {
     let file: LeagueFile
     @Binding var refreshingFile: String?
     @Binding var favoriteFileNames: Set<String>
