@@ -10,6 +10,7 @@ import SwiftUI
 struct FileDetailView: View {
     let fileName: String
     let url: URL
+    let sportsType: String
     @StateObject private var viewModel = JSONViewModel()
     @State private var showPastEvents = false
 
@@ -60,7 +61,7 @@ struct FileDetailView: View {
                             guard let date = ISO8601DateFormatter().date(from: $0.commenceTime) else { return false }
                             return showPastEvents || date > Date()
                         }) { match in
-                            NavigationLink(destination: MatchDetailView(match: match)) {
+                            NavigationLink(destination: MatchDetailView(match: match, sportsType: sportsType)) {
                                 MatchBoxView(match: match)
                             }
                         }

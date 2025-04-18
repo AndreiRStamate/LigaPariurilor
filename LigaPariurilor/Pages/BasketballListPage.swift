@@ -19,7 +19,7 @@ struct BasketballListPage: View {
     @State private var favoriteFileNames: Set<String> = loadFavoriteFileNames()
     @State private var showingSettings = false
     /// User-editable analysis template
-    @AppStorage("analysisTemplate") private var analysisTemplate: String = Match.defaultAnalysisTemplate
+    @AppStorage("analysisBasketballTemplate") private var analysisBasketballTemplate: String = Match.defaultBasketballAnalysisTemplate
 
     var body: some View {
         NavigationView {
@@ -54,7 +54,7 @@ struct BasketballListPage: View {
                 NavigationView {
                     Form {
                         Section(header: Text("Șablon prompt").font(.subheadline)) {
-                            TextEditor(text: $analysisTemplate)
+                            TextEditor(text: $analysisBasketballTemplate)
                                 .font(.callout)
                                 .frame(minHeight: 200)
                         }
@@ -70,7 +70,7 @@ struct BasketballListPage: View {
                         }
                         Section {
                             Button("Revino la prompt-ul inițial") {
-                                analysisTemplate = Match.defaultAnalysisTemplate
+                                analysisBasketballTemplate = Match.defaultBasketballAnalysisTemplate
                             }
                             .foregroundColor(.red)
                         }
@@ -99,7 +99,7 @@ struct BasketballListPage: View {
 
     @ViewBuilder
     private var toggleView: some View {
-        Toggle("Favorites Only", isOn: $showFavoritesOnly)
+        Toggle("Favorite", isOn: $showFavoritesOnly)
             .padding(.horizontal)
     }
 
@@ -124,7 +124,7 @@ struct BasketballListPage: View {
                 ForEach(groupedAndSortedFiles, id: \.key) { section in
                     Section(header: Text(section.key)) {
                         ForEach(section.value) { file in
-                            NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.basketballURL)) {
+                            NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.basketballURL, sportsType: "basketball")) {
                                 BasketballFileRow(
                                     file: file,
                                     refreshingFile: $refreshingFile,

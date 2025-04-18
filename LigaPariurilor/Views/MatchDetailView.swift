@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MatchDetailView: View {
     let match: Match
+    let sportsType: String
     @State private var animateOdds = false
     @State private var showRecommendation = false
     @State private var showingAnalysis = false
@@ -100,47 +101,7 @@ struct MatchDetailView: View {
                 .cornerRadius(12)
             }
             .sheet(isPresented: $showingAnalysis) {
-                VStack(alignment: .leading, spacing: 16) {
-                    ScrollView {
-                        Text(match.formattedAnalysis)
-                            .font(.callout)
-                            .foregroundColor(.primary)
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    .padding()
-
-                    Button(action: {
-                        UIPasteboard.general.string = match.formattedAnalysis
-                        showCopyToast = true
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                            showCopyToast = false
-                        }
-                    }) {
-                        Label("Copiază prompt", systemImage: "doc.on.doc")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
-                }
-                .presentationDetents([.medium, .large])
-                .overlay(
-                    Group {
-                        if showCopyToast {
-                            Text("Prompt-ul a fost copiat")
-                                .font(.caption)
-                                .padding(8)
-                                .background(Color.black.opacity(0.7))
-                                .foregroundColor(.white)
-                                .cornerRadius(8)
-                                .padding(.bottom, 20)
-                                .transition(.opacity)
-                        }
-                    },
-                    alignment: .bottom
-                )
+                analysisSheet
             }
 
             Group {
@@ -162,9 +123,9 @@ struct MatchDetailView: View {
                         Text("Deschide ChatGPT")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.secondary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -181,9 +142,9 @@ struct MatchDetailView: View {
                         Text("Deschide Gemini")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.secondary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -200,9 +161,9 @@ struct MatchDetailView: View {
                         Text("Deschide Grok")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.secondary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -219,9 +180,9 @@ struct MatchDetailView: View {
                         Text("Deschide Claude")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.secondary)
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -251,6 +212,50 @@ struct MatchDetailView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, MMM d, HH:mm"
         return formatter.string(from: date)
+    }
+    
+    private var analysisSheet: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ScrollView {
+                Text(match.getAnalysisTemplate(for: sportsType))
+                    .font(.callout)
+                    .foregroundColor(.primary)
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+            .padding()
+
+            Button(action: {
+                UIPasteboard.general.string = match.getAnalysisTemplate(for: sportsType)
+                showCopyToast = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showCopyToast = false
+                }
+            }) {
+                Label("Copiază prompt", systemImage: "doc.on.doc")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .padding()
+        }
+        .presentationDetents([.medium, .large])
+        .overlay(
+            Group {
+                if showCopyToast {
+                    Text("Prompt-ul a fost copiat")
+                        .font(.caption)
+                        .padding(8)
+                        .background(Color.black.opacity(0.7))
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                        .padding(.bottom, 20)
+                        .transition(.opacity)
+                }
+            },
+            alignment: .bottom
+        )
     }
 }
 
