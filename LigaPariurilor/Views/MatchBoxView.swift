@@ -10,41 +10,25 @@ import SwiftUI
 struct MatchBoxView: View {
     let match: Match
 
-    private func formattedDate(_ isoString: String) -> String {
-        if let date = ISO8601DateFormatter().date(from: isoString) {
-            let calendar = Calendar.current
-            let timeFormatter = DateFormatter()
-            timeFormatter.dateFormat = "HH:mm"
-            if calendar.isDateInToday(date) {
-                return "Azi la \(timeFormatter.string(from: date))"
-            } else if calendar.isDateInTomorrow(date) {
-                return "Mâine la \(timeFormatter.string(from: date))"
-            } else {
-                let formatter = DateFormatter()
-                formatter.dateFormat = "dd-MM-yyyy HH:mm"
-                return formatter.string(from: date)
-            }
-        }
-        return isoString
-    }
-
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("\(match.team1) vs \(match.team2)")
-                .font(.subheadline)
-                .foregroundColor(Color.primary)
-            Text(formattedDate(match.commenceTime))
-                .font(.caption)
-                .foregroundColor(Color.primary)
-            HStack {
-                Text(String(format: "Evaluare: %.2f", match.predictability))
-                    .font(.caption2)
+        HStack {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("\(match.team1) vs \(match.team2)")
+                    .font(.subheadline)
                     .foregroundColor(Color.primary)
-                Spacer()
-                Text(match.action)
-                    .font(.caption2)
-                    .foregroundColor(match.predictability < 1.0 ? .green : .red)
+                Text(formattedDate(match.commenceTime))
+                    .font(.caption)
+                    .foregroundColor(Color.primary)
+                HStack {
+                    Text(match.action)
+                        .font(.caption2)
+                        .foregroundColor(match.predictability < 1.0 ? .green : .red)
+                    Spacer()
+                }
             }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .foregroundColor(.secondary)
         }
         .padding()
         .background(

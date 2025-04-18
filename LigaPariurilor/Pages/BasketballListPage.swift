@@ -144,7 +144,6 @@ struct BasketballListPage: View {
     }
 
     func fetchFileList() {
-        print("Basketball tab is now visible")
         let cachedFileNames = self.loadFileListFromCache()
         if !cachedFileNames.isEmpty {
             self.populateLeagueFiles(from: cachedFileNames)
