@@ -62,7 +62,7 @@ fileprivate let LEAGUE_NAMES: [String: String] = [
 ]
 
 fileprivate func regionFromLeagueKey(_ key: String) -> String {
-    if key.contains("uefa") || key.contains("england") || key.contains("denmark") || key.contains("epl") || key.contains("finland") || key.contains("france") || key.contains("germany") || key.contains("spain") || key.contains("italy") || key.contains("portugal") || key.contains("netherlands") || key.contains("sweden") || key.contains("austria") || key.contains("belgium") || key.contains("switzerland") || key.contains("norway") || key.contains("poland") || key.contains("greece") || key.contains("ireland") || key.contains("scotland") || key.contains("turkey") || key.contains("fa_cup") || key.contains("efl_champ") {
+    if key.contains("uefa") || key.contains("england") || key.contains("denmark") || key.contains("epl") || key.contains("finland") || key.contains("france") || key.contains("germany") || key.contains("spain") || key.contains("italy") || key.contains("portugal") || key.contains("netherlands") || key.contains("sweden") || key.contains("austria") || key.contains("belgium") || key.contains("switzerland") || key.contains("norway") || key.contains("poland") || key.contains("greece") || key.contains("ireland") || key.contains("scotland") || key.contains("turkey") || key.contains("fa_cup") || key.contains("efl_champ") || key.contains("basketball_euroleague") {
         return "🇪🇺 Europa"
     } else if key.contains("brazil") || key.contains("argentina") || key.contains("mexico") || key.contains("chile") || key.contains("conmebol") {
         return "🌎 America de Sud"
