@@ -85,52 +85,56 @@ struct FileListView: View {
                             Section(header: Text(region)) {
                                 ForEach(items) { file in
                                     Group {
-                                    NavigationLink(destination: FileDetailView(fileName: file.fileName)) {
-                                        HStack {
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text(file.displayName.uppercased())
-                                                    .font(.system(size: 14, design: .monospaced))
-                                                Text(file.fileName.replacingOccurrences(of: "api_response_", with: "").replacingOccurrences(of: ".json", with: ""))
-                                                    .font(.caption)
-                                                    .foregroundColor(.gray)
-                                            }
-                                            Spacer()
-                                            Group {
-                                                if refreshingFile == file.fileName {
-                                                    ProgressView()
-                                                        .scaleEffect(0.6)
-                                                } else if isStale(fileName: file.fileName) {
-                                                    Image(systemName: "arrow.clockwise.circle")
-                                                        .foregroundColor(.orange)
-                                                        .onTapGesture {
-                                                            refreshingFile = file.fileName
-                                                            fetchAndCacheFile(file.fileName)
-                                                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                                refreshingFile = nil
-                                                                refreshFlag = UUID()
-                                                                showToast = true
-                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                                    showToast = false
+                                        NavigationLink(destination: FileDetailView(fileName: file.fileName)) {
+                                            HStack {
+                                                VStack(alignment: .leading, spacing: 4) {
+                                                    Text(file.displayName.uppercased())
+                                                        .font(.system(size: 14, design: .monospaced))
+                                                    Text(file.fileName.replacingOccurrences(of: "api_response_", with: "").replacingOccurrences(of: ".json", with: ""))
+                                                        .font(.caption)
+                                                        .foregroundColor(.gray)
+                                                }
+                                                Spacer()
+                                                Group {
+                                                    if refreshingFile == file.fileName {
+                                                        ProgressView()
+                                                            .scaleEffect(0.6)
+                                                    } else if isStale(fileName: file.fileName) {
+                                                        Image(systemName: "arrow.clockwise.circle")
+                                                            .foregroundColor(.orange)
+                                                            .onTapGesture {
+                                                                refreshingFile = file.fileName
+                                                                fetchAndCacheFile(file.fileName)
+                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                                                    refreshingFile = nil
+                                                                    refreshFlag = UUID()
+                                                                    showToast = true
+                                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                                                        showToast = false
+                                                                    }
                                                                 }
                                                             }
-                                                        }
-                                                }
-                                                Image(systemName: favoriteFileNames.contains(file.fileName) ? "star.fill" : "star")
-                                                    .foregroundColor(.yellow)
-                                                    .onTapGesture {
-                                                        FileListView.toggleFavorite(file.fileName)
-                                                        favoriteFileNames = FileListView.loadFavoriteFileNames()
                                                     }
-                                                    .padding(.leading, 8)
+                                                    Image(systemName: favoriteFileNames.contains(file.fileName) ? "star.fill" : "star")
+                                                        .foregroundColor(.yellow)
+                                                        .onTapGesture {
+                                                            FileListView.toggleFavorite(file.fileName)
+                                                            favoriteFileNames = FileListView.loadFavoriteFileNames()
+                                                        }
+                                                        .padding(.leading, 8)
+                                                }
                                             }
+                                            .padding(.vertical, 4)
                                         }
-                                        .padding(.vertical, 4)
-                                    }
                                     }
                                     .id(refreshFlag)
                                 }
                             }
                         }
+                    }
+                    
+                    .refreshable {
+                        fetchFileListWithoutCache()
                     }
                     if showToast {
                         Text("Datele au fost actualizate.")
@@ -178,6 +182,13 @@ struct FileListView: View {
     }
 
     func fetchFileList() {
+        let cachedFileNames = self.loadFileListFromCache()
+        if !cachedFileNames.isEmpty {
+            self.populateLeagueFiles(from: cachedFileNames)
+            self.isLoading = false
+            return
+        }
+
         guard let url = URL(string: "\(APIConfig.baseURL)/files") else {
             self.errorMessage = "Invalid URL"
             return
@@ -199,6 +210,42 @@ struct FileListView: View {
                     } else {
                         self.populateLeagueFiles(from: cachedFileNames)
                     }
+                    return
+                }
+
+                guard let data = data, let html = String(data: data, encoding: .utf8) else {
+                    self.errorMessage = "Failed to load data"
+                    return
+                }
+
+                let matches = html.matches(for: ">([^\\\"]+\\.json)<")
+                self.saveFileListToCache(matches)
+                self.populateLeagueFiles(from: matches)
+                for file in matches {
+                    if loadFromCache(fileName: file) == nil {
+                        fetchAndCacheFile(file)
+                    }
+                }
+            }
+        }
+
+        task.resume()
+    }
+
+    private func fetchFileListWithoutCache() {
+        guard let url = URL(string: "\(APIConfig.baseURL)/files") else {
+            self.errorMessage = "Invalid URL"
+            return
+        }
+
+        self.isLoading = true
+
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            DispatchQueue.main.async {
+                self.isLoading = false
+
+                if let error = error {
+                    self.errorMessage = error.localizedDescription
                     return
                 }
 
