@@ -16,7 +16,7 @@ struct FileListView: View {
                     Label("Fotbal", systemImage: "soccerball")
                 }
 
-            BasketballList()
+            BasketballListPage()
                 .tabItem {
                     Label("Baschet", systemImage: "basketball")
                 }
@@ -25,17 +25,6 @@ struct FileListView: View {
                 .tabItem {
                     Label("Hochei", systemImage: "hockey.puck")
                 }
-        }
-    }
-}
-
-struct BasketballList: View {
-    var body: some View {
-        ZStack {
-            Color.green.opacity(0.2).ignoresSafeArea()
-            Text("Basketball List")
-                .font(.largeTitle)
-                .bold()
         }
     }
 }
