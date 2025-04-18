@@ -151,7 +151,7 @@ struct BasketballListPage: View {
             return
         }
 
-        guard let url = URL(string: "\(APIConfig.baseURL)/files") else {
+        guard let url = URL(string: "\(APIConfig.baseURL)/basketball") else {
             self.errorMessage = "Invalid URL"
             return
         }
@@ -185,7 +185,7 @@ struct BasketballListPage: View {
     }
 
     private func fetchFileListWithoutCache() {
-        guard let url = URL(string: "\(APIConfig.baseURL)/files") else {
+        guard let url = URL(string: "\(APIConfig.baseURL)/basketball") else {
             self.errorMessage = "Invalid URL"
             return
         }
