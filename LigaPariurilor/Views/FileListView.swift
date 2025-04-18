@@ -20,22 +20,6 @@ struct FileListView: View {
                 .tabItem {
                     Label("Baschet", systemImage: "basketball")
                 }
-
-            HockeyList()
-                .tabItem {
-                    Label("Hochei", systemImage: "hockey.puck")
-                }
-        }
-    }
-}
-
-struct HockeyList: View {
-    var body: some View {
-        ZStack {
-            Color.green.opacity(0.2).ignoresSafeArea()
-            Text("Hockey List")
-                .font(.largeTitle)
-                .bold()
         }
     }
 }

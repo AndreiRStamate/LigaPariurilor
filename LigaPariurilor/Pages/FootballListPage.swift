@@ -77,7 +77,7 @@ struct FootballListPage: View {
                     Section(header: Text(section.key)) {
                         ForEach(section.value) { file in
                             NavigationLink(destination: FileDetailView(fileName: file.fileName)) {
-                                FileRow(
+                                FootballFileRow(
                                     file: file,
                                     refreshingFile: $refreshingFile,
                                     favoriteFileNames: $favoriteFileNames,
@@ -90,6 +90,7 @@ struct FootballListPage: View {
                     }
                 }
             }
+            .animation(.easeInOut, value: showFavoritesOnly)
             .refreshable {
                 fetchFileListWithoutCache()
             }
@@ -126,10 +127,20 @@ struct FootballListPage: View {
         return base
     }
     
-    /// Groups filtered files by region and sorts sections by size
+    /// Groups filtered files by region and sorts sections by size, with stable ordering
     private var groupedAndSortedFiles: [(key: String, value: [LeagueFile])] {
-        let grouped = Dictionary(grouping: filteredFiles, by: { $0.region })
-        return grouped.sorted { $0.value.count > $1.value.count }
+        let grouped = Dictionary(grouping: filteredFiles, by: \.region)
+        return grouped
+            .map { region, files in
+                let sortedFiles = files.sorted { $0.displayName < $1.displayName }
+                return (key: region, value: sortedFiles)
+            }
+            .sorted { first, second in
+                if first.value.count != second.value.count {
+                    return first.value.count > second.value.count
+                }
+                return first.key < second.key
+            }
     }
 
     func fetchFileList() {
@@ -263,7 +274,7 @@ struct FootballListPage: View {
     }
 }
 
-struct FileRow: View {
+struct FootballFileRow: View {
     let file: LeagueFile
     @Binding var refreshingFile: String?
     @Binding var favoriteFileNames: Set<String>
