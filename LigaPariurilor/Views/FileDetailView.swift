@@ -22,7 +22,9 @@ struct FileDetailView: View {
             .padding(.horizontal)
             .padding(.top)
             .onChange(of: viewModel.sortMode) {
-                viewModel.sortMatches()
+                withAnimation(.easeInOut) {
+                    viewModel.sortMatches()
+                }
             }
 
             if viewModel.matches.contains(where: {
@@ -63,6 +65,7 @@ struct FileDetailView: View {
                         }
                     }
                     .padding()
+                    .animation(.easeInOut, value: showPastEvents)
                 }
             } else {
                 Spacer()
