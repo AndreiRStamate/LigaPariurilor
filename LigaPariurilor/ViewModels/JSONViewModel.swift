@@ -39,21 +39,18 @@ class JSONViewModel: ObservableObject {
             self.errorMessage = "Failed to parse JSON"
         }
     }
-    func fetchJSON(from fileName: String) {
+    func fetchJSON(from fileName: String, url: URL) {
         if let cachedData = loadFromCache(fileName: fileName) {
             parseJSON(cachedData)
             return
         }
-        
-        guard let url = URL(string: "\(APIConfig.baseURL)/files/\(fileName)") else {
-            errorMessage = "Invalid URL"
-            return
-        }
-        
+
+        let fileURL = url.appendingPathComponent(fileName)
+
         isLoading = true
         errorMessage = nil
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
+
+        URLSession.shared.dataTask(with: fileURL) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
                 

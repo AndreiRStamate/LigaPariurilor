@@ -76,7 +76,7 @@ struct BasketballListPage: View {
                 ForEach(groupedAndSortedFiles, id: \.key) { section in
                     Section(header: Text(section.key)) {
                         ForEach(section.value) { file in
-                            NavigationLink(destination: FileDetailView(fileName: file.fileName)) {
+                            NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.basketballURL)) {
                                 BasketBallFileRow(
                                     file: file,
                                     refreshingFile: $refreshingFile,
@@ -144,6 +144,7 @@ struct BasketballListPage: View {
     }
 
     func fetchFileList() {
+        print("Basketball tab is now visible")
         let cachedFileNames = self.loadFileListFromCache()
         if !cachedFileNames.isEmpty {
             self.populateLeagueFiles(from: cachedFileNames)
@@ -151,12 +152,7 @@ struct BasketballListPage: View {
             return
         }
 
-        guard let url = URL(string: "\(APIConfig.baseURL)/basketball") else {
-            self.errorMessage = "Invalid URL"
-            return
-        }
-
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+        let task = URLSession.shared.dataTask(with: APIConfig.basketballURL) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
 
@@ -175,7 +171,7 @@ struct BasketballListPage: View {
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
                     if loadFromCache(fileName: file) == nil {
-                        fetchAndCacheFile(file)
+                        fetchAndCacheFile(file, url: APIConfig.basketballURL)
                     }
                 }
             }
@@ -185,14 +181,9 @@ struct BasketballListPage: View {
     }
 
     private func fetchFileListWithoutCache() {
-        guard let url = URL(string: "\(APIConfig.baseURL)/basketball") else {
-            self.errorMessage = "Invalid URL"
-            return
-        }
-
         self.isLoading = true
 
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+        let task = URLSession.shared.dataTask(with: APIConfig.basketballURL) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
 
@@ -211,7 +202,7 @@ struct BasketballListPage: View {
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
                     if loadFromCache(fileName: file) == nil {
-                        fetchAndCacheFile(file)
+                        fetchAndCacheFile(file, url: APIConfig.basketballURL)
                     }
                 }
             }
@@ -221,7 +212,7 @@ struct BasketballListPage: View {
     }
 
     func fileListCacheURL() -> URL? {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_cache.txt")
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_bascketball_cache.txt")
     }
 
     func saveFileListToCache(_ files: [String]) {
@@ -301,7 +292,7 @@ struct BasketBallFileRow: View {
                     .foregroundColor(.orange)
                     .onTapGesture {
                         refreshingFile = file.fileName
-                        fetchAndCacheFile(file.fileName)
+                        fetchAndCacheFile(file.fileName, url: APIConfig.basketballURL)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             refreshingFile = nil
                             refreshFlag = UUID()

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FileDetailView: View {
     let fileName: String
+    let url: URL
     @StateObject private var viewModel = JSONViewModel()
     @State private var showPastEvents = false
 
@@ -46,7 +47,7 @@ struct FileDetailView: View {
                     Text("Eroare: \(error)")
                         .foregroundColor(.red)
                     Button("Încearcă din nou") {
-                        viewModel.fetchJSON(from: fileName)
+                        viewModel.fetchJSON(from: fileName, url: url)
                     }
                     .buttonStyle(.borderedProminent)
                 }
@@ -88,7 +89,7 @@ struct FileDetailView: View {
             }
         }
         .onAppear {
-            viewModel.fetchJSON(from: fileName)
+            viewModel.fetchJSON(from: fileName, url: url)
         }
     }
 }

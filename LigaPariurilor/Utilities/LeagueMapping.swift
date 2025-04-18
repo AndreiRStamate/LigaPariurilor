@@ -55,7 +55,10 @@ fileprivate let LEAGUE_NAMES: [String: String] = [
     "soccer_uefa_europa_conference_league": "UEFA Europa Conference League",
     "soccer_uefa_europa_league": "UEFA Europa League",
     "soccer_uefa_nations_league": "UEFA Nations League",
-    "soccer_usa_mls": "USA Major League Soccer"
+    "soccer_usa_mls": "USA Major League Soccer",
+    "basketball_euroleague":"Basketball Euroleague",
+    "basketball_nba":"NBA",
+    "basketball_nba_championship_winner":"NBA Championship Winner"
 ]
 
 fileprivate func regionFromLeagueKey(_ key: String) -> String {
@@ -65,7 +68,7 @@ fileprivate func regionFromLeagueKey(_ key: String) -> String {
         return "🌎 America de Sud"
     } else if key.contains("japan") || key.contains("korea") || key.contains("china") {
         return "🌏 Asia"
-    } else if key.contains("usa") {
+    } else if key.contains("usa") || key.contains("nba") {
         return "🇺🇸 America de Nord"
     } else if key.contains("australia") {
         return "🇦🇺 Oceania"

@@ -76,7 +76,7 @@ struct FootballListPage: View {
                 ForEach(groupedAndSortedFiles, id: \.key) { section in
                     Section(header: Text(section.key)) {
                         ForEach(section.value) { file in
-                            NavigationLink(destination: FileDetailView(fileName: file.fileName)) {
+                            NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.footballURL)) {
                                 FootballFileRow(
                                     file: file,
                                     refreshingFile: $refreshingFile,
@@ -151,12 +151,7 @@ struct FootballListPage: View {
             return
         }
 
-        guard let url = URL(string: "\(APIConfig.baseURL)/football") else {
-            self.errorMessage = "Invalid URL"
-            return
-        }
-
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+        let task = URLSession.shared.dataTask(with: APIConfig.footballURL) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
 
@@ -175,7 +170,7 @@ struct FootballListPage: View {
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
                     if loadFromCache(fileName: file) == nil {
-                        fetchAndCacheFile(file)
+                        fetchAndCacheFile(file, url: APIConfig.footballURL)
                     }
                 }
             }
@@ -185,14 +180,9 @@ struct FootballListPage: View {
     }
 
     private func fetchFileListWithoutCache() {
-        guard let url = URL(string: "\(APIConfig.baseURL)/football") else {
-            self.errorMessage = "Invalid URL"
-            return
-        }
-
         self.isLoading = true
 
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+        let task = URLSession.shared.dataTask(with: APIConfig.footballURL) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
 
@@ -211,7 +201,7 @@ struct FootballListPage: View {
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
                     if loadFromCache(fileName: file) == nil {
-                        fetchAndCacheFile(file)
+                        fetchAndCacheFile(file, url: APIConfig.footballURL)
                     }
                 }
             }
@@ -221,7 +211,7 @@ struct FootballListPage: View {
     }
 
     func fileListCacheURL() -> URL? {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_cache.txt")
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_football_cache.txt")
     }
 
     func saveFileListToCache(_ files: [String]) {
@@ -301,7 +291,7 @@ struct FootballFileRow: View {
                     .foregroundColor(.orange)
                     .onTapGesture {
                         refreshingFile = file.fileName
-                        fetchAndCacheFile(file.fileName)
+                        fetchAndCacheFile(file.fileName, url: APIConfig.footballURL)
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             refreshingFile = nil
                             refreshFlag = UUID()

@@ -41,9 +41,9 @@ func loadCachedFiles() -> [LeagueFile] {
     }
 }
 
-func fetchAndCacheFile(_ fileName: String) {
-    guard let url = URL(string: "\(APIConfig.baseURL)/files/\(fileName)") else { return }
-    var request = URLRequest(url: url)
+func fetchAndCacheFile(_ fileName: String, url: URL) {
+    let fileURL = url.appendingPathComponent(fileName)
+    var request = URLRequest(url: fileURL)
 
     if let cachedDate = getCachedDate(for: fileName) {
         let formatter = DateFormatter()
