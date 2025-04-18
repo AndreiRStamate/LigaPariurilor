@@ -107,3 +107,15 @@ func loadFromCache(fileName: String) -> Data? {
     }
     return try? Data(contentsOf: url)
 }
+
+func isStale(fileName: String) -> Bool {
+    guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return false }
+    let metaURL = dir.appendingPathComponent(fileName).appendingPathExtension("meta")
+    if let metaData = try? Data(contentsOf: metaURL),
+       let json = try? JSONSerialization.jsonObject(with: metaData) as? [String: Any],
+       let timestamp = json["cachedAt"] as? TimeInterval {
+        let age = Date().timeIntervalSince1970 - timestamp
+        return age > staleThreshold
+    }
+    return false
+}
