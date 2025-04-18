@@ -199,17 +199,7 @@ struct FileListView: View {
                 self.isLoading = false
 
                 if let error = error {
-                    let cachedFileNames = self.loadFileListFromCache()
-                    if cachedFileNames.isEmpty {
-                        let cached = loadCachedFiles()
-                        if cached.isEmpty {
-                            self.errorMessage = error.localizedDescription
-                        } else {
-                            self.leagueFiles = cached
-                        }
-                    } else {
-                        self.populateLeagueFiles(from: cachedFileNames)
-                    }
+                    self.errorMessage = error.localizedDescription
                     return
                 }
 
