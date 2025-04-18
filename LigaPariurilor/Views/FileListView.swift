@@ -32,6 +32,25 @@ struct FileListView: View {
     
 
     var body: some View {
+        TabView {
+            mainFileListPage
+                .tabItem {
+                    Label("Fișiere", systemImage: "doc.text")
+                }
+
+            MockPageView1()
+                .tabItem {
+                    Label("Mock 1", systemImage: "1.circle")
+                }
+
+            MockPageView2()
+                .tabItem {
+                    Label("Mock 2", systemImage: "2.circle")
+                }
+        }
+    }
+    
+    private var mainFileListPage: some View {
         NavigationView {
             VStack {
                 HStack {
@@ -42,10 +61,10 @@ struct FileListView: View {
                 .background(Color(.systemGray6))
                 .cornerRadius(10)
                 .padding(.horizontal)
-                
+
                 Toggle("Favorites Only", isOn: $showFavoritesOnly)
                     .padding(.horizontal)
-                
+
                 if isLoading {
                     ProgressView("Loading files...")
                 } else if let errorMessage = errorMessage {
@@ -61,8 +80,6 @@ struct FileListView: View {
                     }
                     .padding()
                 } else {
-                    // Offline banner removed
-                    
                     List {
                         ForEach(groupedAndSortedFiles, id: \.key) { region, items in
                             Section(header: Text(region)) {
@@ -115,16 +132,16 @@ struct FileListView: View {
                             }
                         }
                     }
-                if showToast {
-                    Text("Datele au fost actualizate.")
-                        .font(.caption)
-                        .padding(8)
-                        .background(Color.black.opacity(0.7))
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                        .padding(.bottom, 16)
-                        .transition(.opacity)
-                }
+                    if showToast {
+                        Text("Datele au fost actualizate.")
+                            .font(.caption)
+                            .padding(8)
+                            .background(Color.black.opacity(0.7))
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                            .padding(.bottom, 16)
+                            .transition(.opacity)
+                    }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -137,6 +154,7 @@ struct FileListView: View {
             .onAppear(perform: fetchFileList)
         }
     }
+    
     private var cachedFileNames: Set<String> {
         Set(loadCachedFiles().map { $0.fileName })
     }
@@ -256,4 +274,26 @@ struct FileListView: View {
         saveFavoriteFileNames(names)
     }
 
+}
+
+struct MockPageView1: View {
+    var body: some View {
+        ZStack {
+            Color.orange.opacity(0.2).ignoresSafeArea()
+            Text("Mock Page 1")
+                .font(.largeTitle)
+                .bold()
+        }
+    }
+}
+
+struct MockPageView2: View {
+    var body: some View {
+        ZStack {
+            Color.green.opacity(0.2).ignoresSafeArea()
+            Text("Mock Page 2")
+                .font(.largeTitle)
+                .bold()
+        }
+    }
 }
