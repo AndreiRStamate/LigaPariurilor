@@ -185,4 +185,17 @@ final class SportListViewModel: ObservableObject {
         favoriteFileNames = names
         UserDefaults.standard.set(Array(names), forKey: favoritesKey)
     }
+    
+    func refresh(fileName: String, completion: @escaping () -> Void) {
+        refreshingFile = fileName
+        fetchAndCacheFile(fileName, url: APIConfig.url(for: sportType))
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.refreshingFile = nil
+            completion()
+            self.showToast = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.showToast = false
+            }
+        }
+    }
 }

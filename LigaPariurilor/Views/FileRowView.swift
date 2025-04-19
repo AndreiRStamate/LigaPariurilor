@@ -31,15 +31,8 @@ struct FileRow: View {
                 Image(systemName: "arrow.clockwise.circle")
                     .foregroundColor(.orange)
                     .onTapGesture {
-                        viewModel.refreshingFile = file.fileName
-                        fetchAndCacheFile(file.fileName, url: APIConfig.url(for: viewModel.sportType))
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            viewModel.refreshingFile = nil
+                        viewModel.refresh(fileName: file.fileName) {
                             refreshFlag = UUID()
-                            viewModel.showToast = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                viewModel.showToast = false
-                            }
                         }
                     }
             }
