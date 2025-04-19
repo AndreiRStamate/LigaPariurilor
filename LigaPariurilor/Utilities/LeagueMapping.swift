@@ -6,11 +6,53 @@
 //
 
 struct LeagueInfo {
-  static let names = LEAGUE_NAMES
+  static let names = leagueNames
   static func region(for key: String) -> String { regionFromLeagueKey(key) }
 }
 
-fileprivate let LEAGUE_NAMES: [String: String] = [
+private func regionFromLeagueKey(_ key: String) -> String {
+    for (region, keywords) in regionKeywords {
+        if keywords.contains(where: key.contains) {
+            return region
+        }
+    }
+    return "🌐 International"
+}
+
+/// Mapping of regions to the list of substrings identifying leagues in that region
+private let regionKeywords: [String: [String]] = [
+    "🇬🇧 England": ["england", "epl", "fa_cup", "efl_champ", "soccer_england_league1", "soccer_england_league2"],
+    "🇩🇰 Denmark": ["denmark"],
+    "🇫🇮 Finland": ["finland", "icehockey_liiga"],
+    "🇸🇪 Sweden": ["sweden", "icehockey_sweden_allsvenskan", "icehockey_sweden_hockey_league"],
+    "🇫🇷 France": ["france"],
+    "🇩🇪 Germany": ["germany", "soccer_germany_bundesliga", "soccer_germany_bundesliga2", "soccer_germany_liga3"],
+    "🇮🇹 Italy": ["italy", "soccer_italy_serie_a", "soccer_italy_serie_b"],
+    "🇪🇸 Spain": ["spain", "soccer_spain_la_liga", "soccer_spain_segunda_division"],
+    "🇵🇹 Portugal": ["portugal"],
+    "🇳🇱 Netherlands": ["netherlands"],
+    "🇦🇹 Austria": ["austria"],
+    "🇧🇪 Belgium": ["belgium"],
+    "🇨🇭 Switzerland": ["switzerland"],
+    "🇳🇴 Norway": ["norway"],
+    "🇵🇱 Poland": ["poland"],
+    "🇬🇷 Greece": ["greece"],
+    "🇮🇪 Ireland": ["ireland"],
+    "🏴 Scotland": ["scotland"],
+    "🇹🇷 Turkey": ["turkey"],
+    "🇧🇷 Brazil": ["brazil", "soccer_brazil_campeonato", "soccer_brazil_serie_b"],
+    "🇦🇷 Argentina": ["argentina", "soccer_argentina_primera_division"],
+    "🇲🇽 Mexico": ["mexico", "soccer_mexico_ligamx"],
+    "🇨🇱 Chile": ["chile", "soccer_chile_campeonato"],
+    "🌎 CONMEBOL": ["conmebol", "soccer_conmebol_copa_libertadores", "soccer_conmebol_copa_sudamericana"],
+    "🇯🇵 Japan": ["japan", "soccer_japan_j_league"],
+    "🇰🇷 South Korea": ["korea", "soccer_korea_kleague1"],
+    "🇨🇳 China": ["china", "soccer_china_superleague"],
+    "🇺🇸 USA": ["usa", "nba", "ahl", "nhl", "soccer_usa_mls"],
+    "🇦🇺 Australia": ["australia", "soccer_australia_aleague"]
+]
+
+private let leagueNames: [String: String] = [
     "soccer_argentina_primera_division": "Argentina Primera Division",
     "soccer_australia_aleague": "Australia A-League",
     "soccer_austria_bundesliga": "Austria Bundesliga",
@@ -66,18 +108,3 @@ fileprivate let LEAGUE_NAMES: [String: String] = [
     "icehockey_sweden_allsvenskan": "HockeyAllsvenskan",
     "icehockey_sweden_hockey_league": "SHL"
 ]
-
-fileprivate func regionFromLeagueKey(_ key: String) -> String {
-    if key.contains("uefa") || key.contains("england") || key.contains("denmark") || key.contains("epl") || key.contains("finland") || key.contains("icehockey_liiga") || key.contains("france") || key.contains("germany") || key.contains("spain") || key.contains("italy") || key.contains("portugal") || key.contains("netherlands") || key.contains("sweden") || key.contains("austria") || key.contains("belgium") || key.contains("switzerland") || key.contains("norway") || key.contains("poland") || key.contains("greece") || key.contains("ireland") || key.contains("scotland") || key.contains("turkey") || key.contains("fa_cup") || key.contains("efl_champ") || key.contains("basketball_euroleague") {
-        return "🇪🇺 Europa"
-    } else if key.contains("brazil") || key.contains("argentina") || key.contains("mexico") || key.contains("chile") || key.contains("conmebol") {
-        return "🌎 America de Sud"
-    } else if key.contains("japan") || key.contains("korea") || key.contains("china") {
-        return "🌏 Asia"
-    } else if key.contains("usa") || key.contains("nba") || key.contains("ahl") || key.contains("nhl") {
-        return "🇺🇸 America de Nord"
-    } else if key.contains("australia") {
-        return "🇦🇺 Oceania"
-    }
-    return "🌐 Alta"
-}
