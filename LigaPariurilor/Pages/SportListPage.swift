@@ -16,25 +16,14 @@ struct SportListPage: View {
         _viewModel = StateObject(wrappedValue: SportListViewModel(sportType: sportType))
         
         // Initialize analysisTemplate with a default based on sport
-        let defaultTemplate: String
-        switch sportType {
-        case .football:
-            defaultTemplate = Match.defaultFootballAnalysisTemplate
-        case .basketball:
-            defaultTemplate = Match.defaultBasketballAnalysisTemplate
-        case .hockey:
-            defaultTemplate = Match.defaultHockeyAnalysisTemplate
-        // add other cases as needed
-        }
         let analysisKey = "analysisTemplate_\(sportType.rawValue)"
-        let stored = UserDefaults.standard.string(forKey: analysisKey) ?? defaultTemplate
+        let stored = UserDefaults.standard.string(forKey: analysisKey) ?? Match.getDefaultAnalysisTemplate(sport: sportType.rawValue)
         _analysisTemplate = State(initialValue: stored)
     }
 
     @State private var refreshFlag = UUID()
     @State private var showingSettings = false
     @State private var analysisTemplate: String
-    /// UserDefaults key for the analysis template, namespaced by sport
     private var analysisTemplateKey: String {
         "analysisTemplate_\(sportType.rawValue)"
     }
@@ -88,7 +77,7 @@ struct SportListPage: View {
                         }
                         Section {
                             Button("Revino la prompt-ul inițial") {
-                                analysisTemplate = Match.defaultFootballAnalysisTemplate
+                                analysisTemplate = Match.getDefaultAnalysisTemplate(sport: sportType.rawValue)
                             }
                             .foregroundColor(.red)
                         }

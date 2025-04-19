@@ -17,7 +17,7 @@ struct Match: Identifiable {
     let predictability: Double
     let action: String
     
-    static let defaultFootballAnalysisTemplate = """
+    private static let defaultFootballAnalysisTemplate = """
     Match: {team1} vs {team2}
     Competition: {league}
     Date & Time: {commenceTime}
@@ -38,7 +38,7 @@ struct Match: Identifiable {
     • 3 high-probability bets with strong justifications
     """
     
-    static let defaultBasketballAnalysisTemplate = """
+    private static let defaultBasketballAnalysisTemplate = """
     Give me the 5 most likely bets to hit for the {team1} vs {team2} game on {commenceTime}
     Consider the following factors in your analysis:
     • Current player formations and rotations
@@ -51,7 +51,7 @@ struct Match: Identifiable {
     • Suggest any bet type available on sportsbooks (spreads, totals, player props, specials, etc). For each recommended bet, explain the reasoning and data behind the suggestion.
     """
     
-    static let defaultHockeyAnalysisTemplate = """
+    private static let defaultHockeyAnalysisTemplate = """
     Provide an analysis for the {team1} vs {team2} hockey game on {commenceTime} in {league}.
     
     Consider these factors:
@@ -104,6 +104,19 @@ struct Match: Identifiable {
             return formattedBasketballAnalysis
         case "hockey":
             return formattedHockeyAnalysis
+        default:
+            return ""
+        }
+    }
+    
+    static func getDefaultAnalysisTemplate(sport: String) -> String {
+        switch sport {
+        case "football":
+            return defaultFootballAnalysisTemplate
+        case "basketball":
+            return defaultBasketballAnalysisTemplate
+        case "hockey":
+            return defaultHockeyAnalysisTemplate
         default:
             return ""
         }
