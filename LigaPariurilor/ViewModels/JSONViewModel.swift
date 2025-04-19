@@ -14,8 +14,8 @@ class JSONViewModel: ObservableObject {
     private let decoder: MatchDecoding
 
     init(fetcher: JSONFetching = URLSessionJSONFetcher(),
-       cache:   CacheManaging   = FileCacheManager(),
-       decoder: MatchDecoding   = JSONMatchDecoder())
+         cache:   CacheManaging   = CacheService(),
+         decoder: MatchDecoding   = JSONMatchDecoder())
     {
     self.fetcher = fetcher
     self.cache   = cache
