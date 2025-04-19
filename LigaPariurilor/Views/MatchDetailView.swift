@@ -8,19 +8,18 @@
 import SwiftUI
 
 struct MatchDetailView: View {
-    let match: Match
-    let sportsType: String
-    @State private var animateOdds = false
-    @State private var showRecommendation = false
-    @State private var showingAnalysis = false
-    @State private var showCopyToast = false
+    @StateObject private var viewModel: MatchDetailViewModel
+
+    init(match: Match, sportsType: String) {
+        _viewModel = StateObject(wrappedValue: MatchDetailViewModel(match: match, sportsType: sportsType))
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             VStack(alignment: .leading, spacing: 8) {
                 VStack(alignment: .center, spacing: 2) {
-                    Text(match.team1)
-                    Text("vs \(match.team2)")
+                    Text(viewModel.match.team1)
+                    Text("vs \(viewModel.match.team2)")
                 }
                 .font(.title)
                 .bold()
@@ -29,23 +28,17 @@ struct MatchDetailView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "calendar")
                         .foregroundColor(.gray)
-                    Text("Ora de start: \(formattedDate(match.commenceTime))")
+                    Text("Ora de start: \(viewModel.displayDate)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
             }
 
             VStack(alignment: .leading, spacing: 12) {
-
-                let oddsArray = match.odds.map { $0.value }
-                let allEqual = Set(oddsArray).count == 1
-                let minOdd = oddsArray.min() ?? 0
-                let maxOdd = oddsArray.max() ?? 0
-
                 HStack(spacing: 16) {
-                    ForEach([match.team1, match.team2].enumerated().map { ($0.offset, ($0.element, match.odds[$0.element] ?? 0.0)) }, id: \.1.0) { index, element in
-                        let team = element.0
-                        let odd = element.1
+                    ForEach(Array(viewModel.oddsArray.enumerated()), id: \.element.team) { index, element in
+                        let team = element.team
+                        let odd = element.odd
                         VStack(spacing: 4) {
                             Text(team)
                                 .font(.caption)
@@ -53,12 +46,12 @@ struct MatchDetailView: View {
                             Text(String(format: "%.2f", odd))
                                 .font(.body)
                                 .bold()
-                                .foregroundColor(allEqual ? .primary : (odd == minOdd ? .dynamicGreen : (odd == maxOdd ? .dynamicRed : .primary)))
+                                .foregroundColor(viewModel.allEqualOdds ? .primary : (odd == viewModel.minOdd ? .dynamicGreen : (odd == viewModel.maxOdd ? .dynamicRed : .primary)))
                         }
                         .frame(maxWidth: .infinity)
-                        .opacity(animateOdds ? 1 : 0)
-                        .scaleEffect(animateOdds ? 1 : 0.9)
-                        .animation(.easeOut.delay(Double(index) * 0.1), value: animateOdds)
+                        .opacity(viewModel.animateOdds ? 1 : 0)
+                        .scaleEffect(viewModel.animateOdds ? 1 : 0.9)
+                        .animation(.easeOut.delay(Double(index) * 0.1), value: viewModel.animateOdds)
                     }
                 }
                 .padding()
@@ -66,12 +59,12 @@ struct MatchDetailView: View {
                 .cornerRadius(12)
             }
 
-            if !match.action.isEmpty && showRecommendation {
+            if !viewModel.match.action.isEmpty && viewModel.showRecommendation {
                 HStack(spacing: 8) {
                     Image(systemName: "lightbulb")
                         .foregroundColor(.accentColor)
                         .frame(width: 24)
-                    Text("Recomandare: \(match.action)")
+                    Text("Recomandare: \(viewModel.match.action)")
                         .foregroundColor(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -83,7 +76,7 @@ struct MatchDetailView: View {
             }
 
             Button(action: {
-                showingAnalysis = true
+                viewModel.showingAnalysis = true
             }) {
                 HStack {
                     Image(systemName: "doc.text.magnifyingglass")
@@ -100,21 +93,13 @@ struct MatchDetailView: View {
                 .background(Color(.systemGray6))
                 .cornerRadius(12)
             }
-            .sheet(isPresented: $showingAnalysis) {
+            .sheet(isPresented: $viewModel.showingAnalysis) {
                 analysisSheet
             }
 
             Group {
                 Button(action: {
-                    if let url = URL(string: "chatgpt://") {
-                        UIApplication.shared.open(url, options: [:]) { success in
-                            if !success {
-                                if let appStoreURL = URL(string: "https://apps.apple.com/app/openai-chatgpt/id6448311069") {
-                                    UIApplication.shared.open(appStoreURL)
-                                }
-                            }
-                        }
-                    }
+                    viewModel.open(.chatGPT)
                 }) {
                     HStack {
                         Image(systemName: "bubble.left.and.bubble.right")
@@ -131,9 +116,7 @@ struct MatchDetailView: View {
                 }
 
                 Button(action: {
-                    if let url = URL(string: "https://gemini.google.com") {
-                        UIApplication.shared.open(url)
-                    }
+                    viewModel.open(.gemini)
                 }) {
                     HStack {
                         Image(systemName: "sparkles")
@@ -150,9 +133,7 @@ struct MatchDetailView: View {
                 }
 
                 Button(action: {
-                    if let url = URL(string: "https://grok.x.ai") {
-                        UIApplication.shared.open(url)
-                    }
+                    viewModel.open(.grok)
                 }) {
                     HStack {
                         Image(systemName: "bolt.horizontal")
@@ -169,9 +150,7 @@ struct MatchDetailView: View {
                 }
 
                 Button(action: {
-                    if let url = URL(string: "https://claude.ai") {
-                        UIApplication.shared.open(url)
-                    }
+                    viewModel.open(.claude)
                 }) {
                     HStack {
                         Image(systemName: "brain.head.profile")
@@ -198,26 +177,14 @@ struct MatchDetailView: View {
         .navigationTitle("Detalii Meci")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            animateOdds = true
-            withAnimation(.easeOut.delay(0.3)) {
-                showRecommendation = true
-            }
+            viewModel.onAppear()
         }
     }
 
-    private func formattedDate(_ isoDateString: String) -> String {
-        let isoFormatter = ISO8601DateFormatter()
-        guard let date = isoFormatter.date(from: isoDateString) else { return isoDateString }
-
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE, MMM d, HH:mm"
-        return formatter.string(from: date)
-    }
-    
     private var analysisSheet: some View {
         VStack(alignment: .leading, spacing: 16) {
             ScrollView {
-                Text(match.getAnalysisTemplate(for: sportsType))
+                Text(viewModel.analysisPrompt)
                     .font(.callout)
                     .foregroundColor(.primary)
                     .padding()
@@ -228,11 +195,7 @@ struct MatchDetailView: View {
             .padding()
 
             Button(action: {
-                UIPasteboard.general.string = match.getAnalysisTemplate(for: sportsType)
-                showCopyToast = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    showCopyToast = false
-                }
+                viewModel.copyAnalysis()
             }) {
                 Label("Copiază prompt", systemImage: "doc.on.doc")
                     .frame(maxWidth: .infinity)
@@ -243,7 +206,7 @@ struct MatchDetailView: View {
         .presentationDetents([.medium, .large])
         .overlay(
             Group {
-                if showCopyToast {
+                if viewModel.showCopyToast {
                     Text("Prompt-ul a fost copiat")
                         .font(.caption)
                         .padding(8)
