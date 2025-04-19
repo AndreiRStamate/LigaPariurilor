@@ -1,17 +1,43 @@
 //
-//  FootballListPage.swift
+//  SportListPage.swift
 //  LigaPariurilor
 //
-//  Created by Andrei R Stamate on 18.04.2025.
+//  Created by Andrei R Stamate on 19.04.2025.
 //
 
 import SwiftUI
 
-struct FootballListPage: View {
-    @StateObject var viewModel: SportListViewModel = .init(sportType: SportType.football)
+struct SportListPage: View {
+    let sportType: SportType
+    @StateObject private var viewModel: SportListViewModel
+
+    init(sportType: SportType) {
+        self.sportType = sportType
+        _viewModel = StateObject(wrappedValue: SportListViewModel(sportType: sportType))
+        
+        // Initialize analysisTemplate with a default based on sport
+        let defaultTemplate: String
+        switch sportType {
+        case .football:
+            defaultTemplate = Match.defaultFootballAnalysisTemplate
+        case .basketball:
+            defaultTemplate = Match.defaultBasketballAnalysisTemplate
+        case .hockey:
+            defaultTemplate = Match.defaultHockeyAnalysisTemplate
+        // add other cases as needed
+        }
+        let analysisKey = "analysisTemplate_\(sportType.rawValue)"
+        let stored = UserDefaults.standard.string(forKey: analysisKey) ?? defaultTemplate
+        _analysisTemplate = State(initialValue: stored)
+    }
+
     @State private var refreshFlag = UUID()
     @State private var showingSettings = false
-    @AppStorage("analysisFootballTemplate") private var analysisFootballTemplate: String = Match.defaultFootballAnalysisTemplate
+    @State private var analysisTemplate: String
+    /// UserDefaults key for the analysis template, namespaced by sport
+    private var analysisTemplateKey: String {
+        "analysisTemplate_\(sportType.rawValue)"
+    }
 
     var body: some View {
         NavigationView {
@@ -46,7 +72,7 @@ struct FootballListPage: View {
                 NavigationView {
                     Form {
                         Section(header: Text("Șablon prompt").font(.subheadline)) {
-                            TextEditor(text: $analysisFootballTemplate)
+                            TextEditor(text: $analysisTemplate)
                                 .font(.callout)
                                 .frame(minHeight: 200)
                         }
@@ -62,7 +88,7 @@ struct FootballListPage: View {
                         }
                         Section {
                             Button("Revino la prompt-ul inițial") {
-                                analysisFootballTemplate = Match.defaultFootballAnalysisTemplate
+                                analysisTemplate = Match.defaultFootballAnalysisTemplate
                             }
                             .foregroundColor(.red)
                         }
@@ -71,6 +97,9 @@ struct FootballListPage: View {
                     .navigationBarItems(trailing: Button("Gata") {
                         showingSettings = false
                     })
+                }
+                .onChange(of: analysisTemplate) {
+                    UserDefaults.standard.set(analysisTemplate, forKey: analysisTemplateKey)
                 }
             }
             .onAppear(perform: viewModel.fetchFileList)
@@ -116,8 +145,8 @@ struct FootballListPage: View {
                 ForEach(viewModel.groupedAndSortedFiles, id: \.key) { section in
                     Section(header: Text(section.key)) {
                         ForEach(section.value) { file in
-                            NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.url(for: SportType.football), sportsType: "football")) {
-                                FootballFileRow(
+                            NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.url(for: sportType), sportsType: sportType.rawValue)) {
+                                FileRow(
                                     file: file,
                                     refreshFlag: $refreshFlag,
                                     viewModel: viewModel
@@ -147,54 +176,5 @@ struct FootballListPage: View {
                 .padding(.bottom, 16)
                 .transition(.opacity)
         }
-    }
-
-    
-}
-
-struct FootballFileRow: View {
-    let file: LeagueFile
-    @Binding var refreshFlag: UUID
-    @ObservedObject var viewModel: SportListViewModel
-
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(file.displayName.uppercased())
-                    .font(.system(size: 14, design: .monospaced))
-                Text(file.fileName
-                        .replacingOccurrences(of: "api_response_", with: "")
-                        .replacingOccurrences(of: ".json", with: ""))
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            Spacer()
-            if viewModel.refreshingFile == file.fileName {
-                ProgressView()
-                    .scaleEffect(0.6)
-            } else if isStale(fileName: file.fileName) {
-                Image(systemName: "arrow.clockwise.circle")
-                    .foregroundColor(.orange)
-                    .onTapGesture {
-                        viewModel.refreshingFile = file.fileName
-                        fetchAndCacheFile(file.fileName, url: APIConfig.url(for: SportType.football))
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            viewModel.refreshingFile = nil
-                            refreshFlag = UUID()
-                            viewModel.showToast = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                viewModel.showToast = false
-                            }
-                        }
-                    }
-            }
-            Image(systemName: viewModel.favoriteFileNames.contains(file.fileName) ? "star.fill" : "star")
-                .foregroundColor(.yellow)
-                .onTapGesture {
-                    viewModel.toggleFavorite(fileName: file.fileName)
-                }
-                .padding(.leading, 8)
-        }
-        .padding(.vertical, 4)
     }
 }

@@ -50,10 +50,26 @@ struct Match: Identifiable {
     • The referees assigned to the game, their historical foul-calling tendencies, and their impact on specific players or teams
     • Suggest any bet type available on sportsbooks (spreads, totals, player props, specials, etc). For each recommended bet, explain the reasoning and data behind the suggestion.
     """
-
-
     
-    var formattedFootballAnalysis: String {
+    static let defaultHockeyAnalysisTemplate = """
+    Provide an analysis for the {team1} vs {team2} hockey game on {commenceTime} in {league}.
+    
+    Consider these factors:
+    • Team form and recent results (last 5 games)  
+    • Goalie performance and save percentage  
+    • Power play and penalty kill efficiencies  
+    • Injuries and roster changes  
+    • Home/away performance splits  
+    • Head-to-head history  
+    • Special teams and faceoff win rates  
+    • Travel, rest, and fatigue
+    
+    At the end, provide:
+    • 5 recommended bets with brief rationales  
+    • 3 high-confidence bets with detailed justification  
+    """
+    
+    private var formattedFootballAnalysis: String {
         let template = UserDefaults.standard.string(forKey: "analysisFootballTemplate") ?? Self.defaultFootballAnalysisTemplate
         return template
             .replacingOccurrences(of: "{team1}", with: team1)
@@ -62,8 +78,17 @@ struct Match: Identifiable {
             .replacingOccurrences(of: "{commenceTime}", with: commenceTime)
     }
     
-    var formattedBasketballAnalysis: String {
+    private var formattedBasketballAnalysis: String {
         let template = UserDefaults.standard.string(forKey: "analysisBasketballTemplate") ?? Self.defaultBasketballAnalysisTemplate
+        return template
+            .replacingOccurrences(of: "{team1}", with: team1)
+            .replacingOccurrences(of: "{team2}", with: team2)
+            .replacingOccurrences(of: "{league}", with: league)
+            .replacingOccurrences(of: "{commenceTime}", with: commenceTime)
+    }
+    
+    private var formattedHockeyAnalysis: String {
+        let template = UserDefaults.standard.string(forKey: "analysisHockeyTemplate") ?? Self.defaultHockeyAnalysisTemplate
         return template
             .replacingOccurrences(of: "{team1}", with: team1)
             .replacingOccurrences(of: "{team2}", with: team2)
@@ -77,6 +102,8 @@ struct Match: Identifiable {
             return formattedFootballAnalysis
         case "basketball":
             return formattedBasketballAnalysis
+        case "hockey":
+            return formattedHockeyAnalysis
         default:
             return ""
         }

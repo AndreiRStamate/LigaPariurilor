@@ -11,14 +11,17 @@ struct FileListView: View {
 
     var body: some View {
         TabView {
-            FootballListPage()
+            SportListPage(sportType: SportType.football)
                 .tabItem {
                     Label("Fotbal", systemImage: "soccerball")
                 }
-
-            BasketballListPage()
+            SportListPage(sportType: SportType.basketball)
                 .tabItem {
                     Label("Baschet", systemImage: "basketball")
+                }
+            SportListPage(sportType: SportType.hockey)
+                .tabItem {
+                    Label("Hochei", systemImage: "hockey.puck")
                 }
         }
     }
