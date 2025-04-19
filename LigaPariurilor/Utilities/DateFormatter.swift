@@ -5,22 +5,30 @@
 //  Created by Andrei R Stamate on 18.04.2025.
 //
 
-import SwiftUI
+import Foundation
+
+private let isoFormatter = ISO8601DateFormatter()
+private let timeFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "HH:mm"
+    return formatter
+}()
+private let fullFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "dd-MM-yyyy HH:mm"
+    return formatter
+}()
+private let appCalendar = Calendar.current
 
 public func formattedDate(_ isoString: String) -> String {
-    if let date = ISO8601DateFormatter().date(from: isoString) {
-        let calendar = Calendar.current
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "HH:mm"
-        if calendar.isDateInToday(date) {
-            return "Azi la \(timeFormatter.string(from: date))"
-        } else if calendar.isDateInTomorrow(date) {
-            return "Mâine la \(timeFormatter.string(from: date))"
-        } else {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "dd-MM-yyyy HH:mm"
-            return formatter.string(from: date)
-        }
+    guard let date = isoFormatter.date(from: isoString) else {
+        return isoString
     }
-    return isoString
+    if appCalendar.isDateInToday(date) {
+        return "Azi la \(timeFormatter.string(from: date))"
+    } else if appCalendar.isDateInTomorrow(date) {
+        return "Mâine la \(timeFormatter.string(from: date))"
+    } else {
+        return fullFormatter.string(from: date)
+    }
 }
