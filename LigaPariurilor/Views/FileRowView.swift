@@ -15,19 +15,16 @@ struct FileRow: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
+                Spacer()
                 Text(file.displayName.uppercased())
-                    .font(.system(size: 14, design: .monospaced))
-                Text(file.fileName
-                        .replacingOccurrences(of: "api_response_", with: "")
-                        .replacingOccurrences(of: ".json", with: ""))
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                    .font(.system(size: 14))
+                Spacer()
             }
             Spacer()
             if viewModel.refreshingFile == file.fileName {
                 ProgressView()
                     .scaleEffect(0.6)
-            } else if isStale(fileName: file.fileName) {
+            } else if viewModel.isStale(fileName: file.fileName) {
                 Image(systemName: "arrow.clockwise.circle")
                     .foregroundColor(.orange)
                     .onTapGesture {

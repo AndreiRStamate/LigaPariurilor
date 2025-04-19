@@ -43,7 +43,7 @@ final class SportListViewModel: ObservableObject {
     }
     
     private var cachedFileNames: Set<String> {
-        Set(loadCachedFiles().map { $0.fileName })
+        Set(CacheService.loadCachedFiles().map { $0.fileName })
     }
     
     var filteredFiles: [LeagueFile] {
@@ -100,8 +100,8 @@ final class SportListViewModel: ObservableObject {
                 self.saveFileListToCache(matches)
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
-                    if loadFromCache(fileName: file) == nil {
-                        fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
+                    if CacheService.loadFromCache(fileName: file) == nil {
+                        CacheService.fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
                     }
                 }
             }
@@ -131,8 +131,8 @@ final class SportListViewModel: ObservableObject {
                 self.saveFileListToCache(matches)
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
-                    if loadFromCache(fileName: file) == nil {
-                        fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
+                    if CacheService.loadFromCache(fileName: file) == nil {
+                        CacheService.fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
                     }
                 }
             }
@@ -188,7 +188,7 @@ final class SportListViewModel: ObservableObject {
     
     func refresh(fileName: String, completion: @escaping () -> Void) {
         refreshingFile = fileName
-        fetchAndCacheFile(fileName, url: APIConfig.url(for: sportType))
+        CacheService.fetchAndCacheFile(fileName, url: APIConfig.url(for: sportType))
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.refreshingFile = nil
             completion()
@@ -197,5 +197,10 @@ final class SportListViewModel: ObservableObject {
                 self.showToast = false
             }
         }
+    }
+
+    /// Determines if a file is stale (uses existing standalone isStale function)
+    func isStale(fileName: String) -> Bool {
+        return CacheService.isStale(fileName: fileName)
     }
 }
