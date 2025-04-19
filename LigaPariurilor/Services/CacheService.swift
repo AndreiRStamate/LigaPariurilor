@@ -76,9 +76,7 @@ struct CacheService: CacheManaging{
             let jsonFiles = try fileManager.contentsOfDirectory(atPath: directory.path)
                 .filter { $0.hasSuffix(".json") }
             let mappedFiles = jsonFiles.map { file in
-                let trimmed = file
-                    .replacingOccurrences(of: "api_response_", with: "")
-                    .replacingOccurrences(of: ".json", with: "")
+                let trimmed = file.trimmedFilename
                 let displayName = LeagueInfo.names[trimmed] ?? trimmed
                 let region = LeagueInfo.region(for: trimmed)
                 return LeagueFile(fileName: file, leagueKey: trimmed, displayName: displayName, region: region)

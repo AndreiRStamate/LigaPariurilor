@@ -109,9 +109,7 @@ class JSONViewModel: ObservableObject {
     }
 
     func displayName(from fileName: String) -> String {
-        let trimmed = fileName
-            .replacingOccurrences(of: "api_response_", with: "")
-            .replacingOccurrences(of: ".json", with: "")
+        let trimmed = fileName.trimmedFilename
         return (LeagueInfo.names[trimmed] ?? trimmed).uppercased()
     }
 }

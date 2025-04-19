@@ -159,9 +159,7 @@ final class SportListViewModel: ObservableObject {
 
     func populateLeagueFiles(from matches: [String]) {
         let mappedFiles = matches.map { file in
-            let trimmed = file
-                .replacingOccurrences(of: "api_response_", with: "")
-                .replacingOccurrences(of: ".json", with: "")
+            let trimmed = file.trimmedFilename
             let displayName = LeagueInfo.names[trimmed] ?? trimmed
             let region = LeagueInfo.region(for: trimmed)
             return LeagueFile(fileName: file, leagueKey: trimmed, displayName: displayName, region: region)
