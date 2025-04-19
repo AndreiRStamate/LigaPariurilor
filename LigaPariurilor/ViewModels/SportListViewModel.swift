@@ -11,6 +11,7 @@ enum SportType: String {
     case football
     case basketball
     case hockey
+    case cricket
     // Add other sports as needed
 }
 

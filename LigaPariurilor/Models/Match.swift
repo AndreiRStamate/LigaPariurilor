@@ -69,6 +69,10 @@ struct Match: Identifiable {
     • 3 high-confidence bets with detailed justification  
     """
     
+    private static let defaultCricketAnalysisTemplate = """
+    Muie la indieni
+    """
+    
     private var formattedFootballAnalysis: String {
         let template = UserDefaults.standard.string(forKey: "analysisFootballTemplate") ?? Self.defaultFootballAnalysisTemplate
         return template
@@ -96,6 +100,15 @@ struct Match: Identifiable {
             .replacingOccurrences(of: "{commenceTime}", with: commenceTime)
     }
     
+    private var formattedCricketAnalysis: String {
+        let template = UserDefaults.standard.string(forKey: "analysisCricketTemplate") ?? Self.defaultCricketAnalysisTemplate
+        return template
+            .replacingOccurrences(of: "{team1}", with: team1)
+            .replacingOccurrences(of: "{team2}", with: team2)
+            .replacingOccurrences(of: "{league}", with: league)
+            .replacingOccurrences(of: "{commenceTime}", with: commenceTime)
+    }
+    
     func getAnalysisTemplate(for sport: String) -> String {
         switch sport {
         case "football":
@@ -104,6 +117,8 @@ struct Match: Identifiable {
             return formattedBasketballAnalysis
         case "hockey":
             return formattedHockeyAnalysis
+        case "cricket":
+            return formattedCricketAnalysis
         default:
             return ""
         }
@@ -117,6 +132,8 @@ struct Match: Identifiable {
             return defaultBasketballAnalysisTemplate
         case "hockey":
             return defaultHockeyAnalysisTemplate
+        case "cricket":
+            return defaultCricketAnalysisTemplate
         default:
             return ""
         }

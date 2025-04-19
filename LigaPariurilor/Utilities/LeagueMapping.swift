@@ -49,7 +49,9 @@ private let regionKeywords: [String: [String]] = [
     "🇰🇷 South Korea": ["korea", "soccer_korea_kleague1"],
     "🇨🇳 China": ["china", "soccer_china_superleague"],
     "🇺🇸 USA": ["usa", "nba", "ahl", "nhl", "soccer_usa_mls"],
-    "🇦🇺 Australia": ["australia", "soccer_australia_aleague"]
+    "🇦🇺 Australia": ["australia", "soccer_australia_aleague"],
+    "🇮🇳 India": ["cricket_ipl"],
+    "🇵🇰 Pakistan": ["cricket_psl"]
 ]
 
 private let leagueNames: [String: String] = [
@@ -106,5 +108,9 @@ private let leagueNames: [String: String] = [
     "icehockey_nhl": "US Ice Hockey",
     "icehockey_nhl_championship_winner": "NHL Championship Winner",
     "icehockey_sweden_allsvenskan": "HockeyAllsvenskan",
-    "icehockey_sweden_hockey_league": "SHL"
+    "icehockey_sweden_hockey_league": "SHL",
+    "cricket_international_t20": "International Twenty20",
+    "cricket_ipl": "Indian Premier League",
+    "cricket_psl": "Pakistan Super League",
+    "cricket_test_match": "Test Matches"
 ]

@@ -23,6 +23,10 @@ struct FileListView: View {
                 .tabItem {
                     Label("Hochei", systemImage: "hockey.puck")
                 }
+            SportListPage(sportType: SportType.cricket)
+                .tabItem {
+                    Label("Cricket", systemImage: "sportscourt")
+                }
         }
     }
 }
