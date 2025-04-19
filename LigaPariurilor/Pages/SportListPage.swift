@@ -100,6 +100,14 @@ struct SportListPage: View {
         HStack {
             Image(systemName: "magnifyingglass")
             TextField("Search", text: $viewModel.searchText)
+            if !viewModel.searchText.isEmpty {
+                Button(action: {
+                    viewModel.searchText = ""
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.secondary)
+                }
+            }
         }
         .padding(8)
         .background(Color(.systemGray6))
