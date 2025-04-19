@@ -8,21 +8,25 @@
 import SwiftUI
 
 struct MatchBoxView: View {
-    let match: Match
+    private let viewModel: MatchBoxViewModel
+
+    init(match: Match) {
+        self.viewModel = MatchBoxViewModel(match: match)
+    }
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
-                Text("\(match.team1) vs \(match.team2)")
+                Text(viewModel.displayTeams)
                     .font(.subheadline)
                     .foregroundColor(Color.primary)
-                Text(formattedDate(match.commenceTime))
+                Text(viewModel.displayDate)
                     .font(.caption)
                     .foregroundColor(Color.primary)
                 HStack {
-                    Text(match.action)
+                    Text(viewModel.match.action)
                         .font(.caption2)
-                        .foregroundColor(match.predictability < 1.0 ? .green : .red)
+                        .foregroundColor(viewModel.outcome == .predictable ? .green : .red)
                     Spacer()
                 }
             }
