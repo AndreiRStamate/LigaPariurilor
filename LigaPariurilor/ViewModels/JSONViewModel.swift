@@ -8,6 +8,20 @@
 import SwiftUI
 
 class JSONViewModel: ObservableObject {
+    
+    private let fetcher: JSONFetching
+    private let cache:   CacheManaging
+    private let decoder: MatchDecoding
+
+    init(fetcher: JSONFetching = URLSessionJSONFetcher(),
+       cache:   CacheManaging   = FileCacheManager(),
+       decoder: MatchDecoding   = JSONMatchDecoder())
+    {
+    self.fetcher = fetcher
+    self.cache   = cache
+    self.decoder = decoder
+    }
+    
     @Published var matches: [Match] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -44,12 +58,12 @@ class JSONViewModel: ObservableObject {
     private static let isoFormatter = ISO8601DateFormatter()
 
     /// Parse a match’s commenceTime string into Date
-    fileprivate func date(from isoString: String) -> Date? {
+    private func date(from isoString: String) -> Date? {
         Self.isoFormatter.date(from: isoString)
     }
 
     /// Return allMatches sorted according to the current sortMode
-    fileprivate func sortedMatchesArray() -> [Match] {
+    private func sortedMatchesArray() -> [Match] {
         switch sortMode {
         case .predictability:
             return allMatches.sorted { $0.predictability < $1.predictability }
@@ -62,34 +76,35 @@ class JSONViewModel: ObservableObject {
     }
 
     func fetchJSON(from fileName: String, url: URL) {
-        if let cachedData = loadFromCache(fileName: fileName) {
-            parseJSON(cachedData)
-            return
+      if let data = cache.load(fileName: fileName) {
+        apply(data)
+        return
+      }
+      isLoading = true
+      errorMessage = nil
+
+      fetcher.fetch(fileName: fileName, from: url) { result in
+        DispatchQueue.main.async {
+          self.isLoading = false
+          switch result {
+          case .failure(let err):
+            self.errorMessage = err.localizedDescription
+          case .success(let data):
+            self.cache.save(data, fileName: fileName)
+            self.apply(data)
+          }
         }
+      }
+    }
 
-        let fileURL = url.appendingPathComponent(fileName)
-
-        isLoading = true
-        errorMessage = nil
-
-        URLSession.shared.dataTask(with: fileURL) { data, response, error in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                
-                if let error = error {
-                    self.errorMessage = error.localizedDescription
-                    return
-                }
-                
-                guard let data = data else {
-                    self.errorMessage = "No data received"
-                    return
-                }
-                
-                self.saveToCache(data, fileName: fileName)
-                self.parseJSON(data)
-            }
-        }.resume()
+    private func apply(_ data: Data) {
+      do {
+        let matches = try decoder.decode(data)
+        self.allMatches = matches
+        sortMatches()
+      } catch {
+        self.errorMessage = error.localizedDescription
+      }
     }
     
     func sortMatches() {
