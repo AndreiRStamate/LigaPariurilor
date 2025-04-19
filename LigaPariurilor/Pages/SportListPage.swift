@@ -91,7 +91,7 @@ struct SportListPage: View {
                     UserDefaults.standard.set(analysisTemplate, forKey: analysisTemplateKey)
                 }
             }
-            .onAppear(perform: viewModel.fetchFileList)
+            .onAppear{ viewModel.fetchFileList() }
         }
     }
 
@@ -156,7 +156,7 @@ struct SportListPage: View {
             }
             .animation(.easeInOut, value: viewModel.showFavoritesOnly)
             .refreshable {
-                viewModel.fetchFileListWithoutCache()
+                viewModel.fetchFileList(useCache: false)
             }
         }
     }

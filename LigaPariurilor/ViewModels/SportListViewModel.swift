@@ -38,6 +38,10 @@ final class SportListViewModel: ObservableObject {
         }
     }
     
+    private var cacheFileName: String {
+        "file_list_\(sportType.rawValue)_cache.txt"
+    }
+    
     private var favoritesKey: String {
         "favoriteFileNames_\(sportType.rawValue)"
     }
@@ -74,43 +78,24 @@ final class SportListViewModel: ObservableObject {
             }
     }
 
-    func fetchFileList() {
-        let cachedFileNames = self.loadFileListFromCache()
-        if !cachedFileNames.isEmpty {
-            self.populateLeagueFiles(from: cachedFileNames)
-            self.isLoading = false
-            return
-        }
+    private func prepareForCaching(_ matches: [String]) -> Data? {
+        matches
+            .joined(separator: "\n")
+            .data(using: .utf8)
+    }
 
-        let task = URLSession.shared.dataTask(with: APIConfig.url(for: sportType)) { data, response, error in
-            DispatchQueue.main.async {
+    func fetchFileList(useCache: Bool = true) {
+        if useCache {
+            let cachedFileNames = CacheService.load(fileName: self.cacheFileName, expiry: nil)
+                .flatMap { String(data: $0, encoding: .utf8) }?
+                .components(separatedBy: "\n") ?? []
+            if !cachedFileNames.isEmpty {
+                self.populateLeagueFiles(from: cachedFileNames)
                 self.isLoading = false
-
-                if let error = error {
-                    self.errorMessage = error.localizedDescription
-                    return
-                }
-
-                guard let data = data, let html = String(data: data, encoding: .utf8) else {
-                    self.errorMessage = "Failed to load data"
-                    return
-                }
-
-                let matches = html.matches(for: ">([^\\\"]+\\.json)<")
-                self.saveFileListToCache(matches)
-                self.populateLeagueFiles(from: matches)
-                for file in matches {
-                    if CacheService.load(fileName: file, expiry: CacheService.fullCacheExpiry) == nil {
-                        CacheService.fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
-                    }
-                }
+                return
             }
         }
 
-        task.resume()
-    }
-
-    func fetchFileListWithoutCache() {
         self.isLoading = true
 
         let task = URLSession.shared.dataTask(with: APIConfig.url(for: sportType)) { data, response, error in
@@ -128,7 +113,9 @@ final class SportListViewModel: ObservableObject {
                 }
 
                 let matches = html.matches(for: ">([^\\\"]+\\.json)<")
-                self.saveFileListToCache(matches)
+                self.prepareForCaching(matches).map {
+                    CacheService.save($0, fileName: self.cacheFileName, updateMeta: false)
+                }
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
                     if CacheService.load(fileName: file, expiry: CacheService.fullCacheExpiry) == nil {
@@ -139,22 +126,6 @@ final class SportListViewModel: ObservableObject {
         }
 
         task.resume()
-    }
-
-    func fileListCacheURL() -> URL? {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_\(sportType.rawValue)_cache.txt")
-    }
-
-    func saveFileListToCache(_ files: [String]) {
-        guard let url = fileListCacheURL() else { return }
-        let text = files.joined(separator: "\n")
-        try? text.write(to: url, atomically: true, encoding: .utf8)
-    }
-
-    func loadFileListFromCache() -> [String] {
-        guard let url = fileListCacheURL(),
-              let content = try? String(contentsOf: url, encoding: .utf8) else { return [] }
-        return content.components(separatedBy: "\n")
     }
 
     func populateLeagueFiles(from matches: [String]) {
