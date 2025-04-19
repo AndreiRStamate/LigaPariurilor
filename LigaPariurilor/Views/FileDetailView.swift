@@ -29,10 +29,7 @@ struct FileDetailView: View {
                 }
             }
 
-            if viewModel.matches.contains(where: {
-                guard let date = ISO8601DateFormatter().date(from: $0.commenceTime) else { return false }
-                return date <= Date()
-            }) {
+            if viewModel.hasPastMatches {
                 Toggle("Afișează evenimentele trecute", isOn: $showPastEvents)
                     .padding(.horizontal)
             }
@@ -57,10 +54,7 @@ struct FileDetailView: View {
             } else if !viewModel.matches.isEmpty {
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(viewModel.matches.filter {
-                            guard let date = ISO8601DateFormatter().date(from: $0.commenceTime) else { return false }
-                            return showPastEvents || date > Date()
-                        }) { match in
+                        ForEach(viewModel.filteredMatches(showPast: showPastEvents)) { match in
                             NavigationLink(destination: MatchDetailView(match: match, sportsType: sportsType)) {
                                 MatchBoxView(match: match)
                             }
@@ -80,13 +74,8 @@ struct FileDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text({
-                    let trimmed = fileName
-                        .replacingOccurrences(of: "api_response_", with: "")
-                        .replacingOccurrences(of: ".json", with: "")
-                    return (LeagueInfo.names[trimmed] ?? trimmed).uppercased()
-                }())
-                .font(.system(size: 14, weight: .semibold, design: .default))
+                Text(viewModel.displayName(from: fileName))
+                    .font(.system(size: 14, weight: .semibold, design: .default))
             }
         }
         .onAppear {
