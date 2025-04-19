@@ -100,7 +100,7 @@ final class SportListViewModel: ObservableObject {
                 self.saveFileListToCache(matches)
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
-                    if CacheService.loadFromCache(fileName: file) == nil {
+                    if CacheService.load(fileName: file, expiry: CacheService.fullCacheExpiry) == nil {
                         CacheService.fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
                     }
                 }
@@ -131,7 +131,7 @@ final class SportListViewModel: ObservableObject {
                 self.saveFileListToCache(matches)
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
-                    if CacheService.loadFromCache(fileName: file) == nil {
+                    if CacheService.load(fileName: file, expiry: CacheService.fullCacheExpiry) == nil {
                         CacheService.fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
                     }
                 }

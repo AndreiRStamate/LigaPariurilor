@@ -9,29 +9,63 @@ import Foundation
 
 struct CacheService: CacheManaging{
     
-    private let folder: URL
-
-    init(documentDirectory: URL = FileManager.default
-           .urls(for: .documentDirectory, in: .userDomainMask).first!) {
-      self.folder = documentDirectory
-    }
-
-    func load(fileName: String) -> Data? {
-      let url = folder.appendingPathComponent(fileName)
-      return FileManager.default.fileExists(atPath: url.path)
-        ? try? Data(contentsOf: url)
-        : nil
-    }
-
-    func save(_ data: Data, fileName: String) {
-      let url = folder.appendingPathComponent(fileName)
-      try? data.write(to: url)
-    }
-    
     // Cache expiry settings
     static let fullCacheExpiry: TimeInterval = 24 * 60 * 60  // 24 hours
     static let staleThreshold: TimeInterval = 12 * 60 * 60   // 12 hours
-    
+
+    /// Directory used for storing cache files
+    private static let folder: URL = FileManager.default
+        .urls(for: .documentDirectory, in: .userDomainMask)
+        .first!
+
+    /// Returns the URLs for the data file and its corresponding .meta file
+    private static func cacheURLs(for fileName: String) -> (dataURL: URL, metaURL: URL) {
+        let dataURL = folder.appendingPathComponent(fileName)
+        let metaURL = dataURL.appendingPathExtension("meta")
+        return (dataURL, metaURL)
+    }
+
+    /// Reads and parses the .meta JSON file, returning the cachedAt date if available.
+    private static func readCachedAt(from metaURL: URL) -> Date? {
+        guard let metaData = try? Data(contentsOf: metaURL),
+              let json = try? JSONSerialization.jsonObject(with: metaData) as? [String: Any],
+              let timestamp = json["cachedAt"] as? TimeInterval else {
+            return nil
+        }
+        return Date(timeIntervalSince1970: timestamp)
+    }
+
+    /// Loads data for the given file, optionally enforcing an expiry interval in seconds.
+    static func load(fileName: String, expiry: TimeInterval?) -> Data? {
+        let (dataURL, metaURL) = cacheURLs(for: fileName)
+        // If an expiry is provided, check metadata age
+        if let expiry = expiry, let cachedAt = Self.readCachedAt(from: metaURL) {
+            let age = Date().timeIntervalSince(cachedAt)
+            if age > expiry {
+                return nil
+            }
+        }
+        // Ensure data file exists
+        guard FileManager.default.fileExists(atPath: dataURL.path) else {
+            return nil
+        }
+        return try? Data(contentsOf: dataURL)
+    }
+
+    /// Saves data for the given file, and updates metadata if requested.
+    static func save(_ data: Data, fileName: String, updateMeta: Bool) {
+        let (dataURL, metaURL) = cacheURLs(for: fileName)
+        // Write data file
+        try? data.write(to: dataURL)
+        // Optionally write/update metadata
+        if updateMeta {
+            let metadata: [String: TimeInterval] = ["cachedAt": Date().timeIntervalSince1970]
+            if let metaData = try? JSONSerialization.data(withJSONObject: metadata) {
+                try? metaData.write(to: metaURL)
+            }
+        }
+    }
+
     static func loadCachedFiles() -> [LeagueFile] {
         let fileManager = FileManager.default
         guard let directory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
@@ -66,7 +100,8 @@ struct CacheService: CacheManaging{
         let fileURL = url.appendingPathComponent(fileName)
         var request = URLRequest(url: fileURL)
         
-        if let cachedDate = getCachedDate(for: fileName) {
+        let (_, metaURL) = cacheURLs(for: fileName)
+        if let cachedDate = Self.readCachedAt(from: metaURL) {
             let formatter = DateFormatter()
             formatter.dateFormat = "E, dd MMM yyyy HH:mm:ss zzz"
             formatter.locale = Locale(identifier: "en_US")
@@ -87,55 +122,18 @@ struct CacheService: CacheManaging{
             }
             
             if let data = data {
-                saveToCache(data, fileName: fileName)
+                save(data, fileName: fileName, updateMeta: true)
             }
         }.resume()
     }
     
-    private static func getCachedDate(for fileName: String) -> Date? {
-        guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
-        let metaURL = dir.appendingPathComponent(fileName).appendingPathExtension("meta")
-        if let metaData = try? Data(contentsOf: metaURL),
-           let json = try? JSONSerialization.jsonObject(with: metaData) as? [String: Any],
-           let timestamp = json["cachedAt"] as? TimeInterval {
-            return Date(timeIntervalSince1970: timestamp)
-        }
-        return nil
-    }
-    
-    static func saveToCache(_ data: Data, fileName: String) {
-        guard let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
-            .appendingPathComponent(fileName) else { return }
-        try? data.write(to: url)
-        let metadata = ["cachedAt": Date().timeIntervalSince1970]
-        if let metaData = try? JSONSerialization.data(withJSONObject: metadata) {
-            try? metaData.write(to: url.appendingPathExtension("meta"))
-        }
-    }
-    
-    static func loadFromCache(fileName: String) -> Data? {
-        guard let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?
-            .appendingPathComponent(fileName),
-              FileManager.default.fileExists(atPath: url.path) else { return nil }
-        let metaURL = url.appendingPathExtension("meta")
-        if let metaData = try? Data(contentsOf: metaURL),
-           let json = try? JSONSerialization.jsonObject(with: metaData) as? [String: Any],
-           let timestamp = json["cachedAt"] as? TimeInterval {
-            let age = Date().timeIntervalSince1970 - timestamp
-            if age > fullCacheExpiry {
-                return nil
-            }
-        }
-        return try? Data(contentsOf: url)
-    }
-    
     static func isStale(fileName: String) -> Bool {
-        guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return false }
+        guard let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return false
+        }
         let metaURL = dir.appendingPathComponent(fileName).appendingPathExtension("meta")
-        if let metaData = try? Data(contentsOf: metaURL),
-           let json = try? JSONSerialization.jsonObject(with: metaData) as? [String: Any],
-           let timestamp = json["cachedAt"] as? TimeInterval {
-            let age = Date().timeIntervalSince1970 - timestamp
+        if let cachedDate = readCachedAt(from: metaURL) {
+            let age = Date().timeIntervalSince(cachedDate)
             return age > staleThreshold
         }
         return false

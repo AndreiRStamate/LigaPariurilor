@@ -10,15 +10,12 @@ import SwiftUI
 class JSONViewModel: ObservableObject {
     
     private let fetcher: JSONFetching
-    private let cache:   CacheManaging
     private let decoder: MatchDecoding
 
     init(fetcher: JSONFetching = URLSessionJSONFetcher(),
-         cache:   CacheManaging   = CacheService(),
          decoder: MatchDecoding   = JSONMatchDecoder())
     {
     self.fetcher = fetcher
-    self.cache   = cache
     self.decoder = decoder
     }
     
@@ -27,21 +24,6 @@ class JSONViewModel: ObservableObject {
     @Published var errorMessage: String?
     @AppStorage("sortMode") var sortMode: SortMode = .predictability
     @Published private var allMatches: [Match] = []
-
-    private func cacheURL(for fileName: String) -> URL? {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent(fileName)
-    }
-    
-    private func saveToCache(_ data: Data, fileName: String) {
-        guard let url = cacheURL(for: fileName) else { return }
-        try? data.write(to: url)
-    }
-    
-    private func loadFromCache(fileName: String) -> Data? {
-        guard let url = cacheURL(for: fileName),
-              FileManager.default.fileExists(atPath: url.path) else { return nil }
-        return try? Data(contentsOf: url)
-    }
     
     private func parseJSON(_ data: Data) {
         do {
@@ -76,7 +58,7 @@ class JSONViewModel: ObservableObject {
     }
 
     func fetchJSON(from fileName: String, url: URL) {
-      if let data = cache.load(fileName: fileName) {
+        if let data = CacheService.load(fileName: fileName, expiry: nil) {
         apply(data)
         return
       }
@@ -90,7 +72,7 @@ class JSONViewModel: ObservableObject {
           case .failure(let err):
             self.errorMessage = err.localizedDescription
           case .success(let data):
-            self.cache.save(data, fileName: fileName)
+              CacheService.save(data, fileName: fileName, updateMeta: false)
             self.apply(data)
           }
         }
