@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FootballListPage: View {
-    @StateObject var viewModel: FootballListViewModel = .init()
+    @StateObject var viewModel: SportListViewModel = .init(sportType: SportType.football)
     @State private var refreshFlag = UUID()
     @State private var showingSettings = false
     @AppStorage("analysisFootballTemplate") private var analysisFootballTemplate: String = Match.defaultFootballAnalysisTemplate
@@ -116,7 +116,7 @@ struct FootballListPage: View {
                 ForEach(viewModel.groupedAndSortedFiles, id: \.key) { section in
                     Section(header: Text(section.key)) {
                         ForEach(section.value) { file in
-                            NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.footballURL, sportsType: "football")) {
+                            NavigationLink(destination: FileDetailView(fileName: file.fileName, url: APIConfig.url(for: SportType.football), sportsType: "football")) {
                                 FootballFileRow(
                                     file: file,
                                     refreshFlag: $refreshFlag,
@@ -155,7 +155,7 @@ struct FootballListPage: View {
 struct FootballFileRow: View {
     let file: LeagueFile
     @Binding var refreshFlag: UUID
-    @ObservedObject var viewModel: FootballListViewModel
+    @ObservedObject var viewModel: SportListViewModel
 
     var body: some View {
         HStack {
@@ -177,7 +177,7 @@ struct FootballFileRow: View {
                     .foregroundColor(.orange)
                     .onTapGesture {
                         viewModel.refreshingFile = file.fileName
-                        fetchAndCacheFile(file.fileName, url: APIConfig.footballURL)
+                        fetchAndCacheFile(file.fileName, url: APIConfig.url(for: SportType.football))
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             viewModel.refreshingFile = nil
                             refreshFlag = UUID()
@@ -191,8 +191,7 @@ struct FootballFileRow: View {
             Image(systemName: viewModel.favoriteFileNames.contains(file.fileName) ? "star.fill" : "star")
                 .foregroundColor(.yellow)
                 .onTapGesture {
-                    FootballListViewModel.toggleFavorite(file.fileName)
-                    viewModel.favoriteFileNames = FootballListViewModel.loadFavoriteFileNames()
+                    viewModel.toggleFavorite(fileName: file.fileName)
                 }
                 .padding(.leading, 8)
         }

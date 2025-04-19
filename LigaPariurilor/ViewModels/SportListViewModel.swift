@@ -19,6 +19,10 @@ final class SportListViewModel: ObservableObject {
 
     init(sportType: SportType) {
         self.sportType = sportType
+        let defaultsKey = "favoriteFileNames_\(sportType.rawValue)"
+        self.favoriteFileNames = Set(
+            UserDefaults.standard.stringArray(forKey: defaultsKey) ?? []
+        )
     }
 
     @Published var leagueFiles: [LeagueFile] = []
@@ -27,11 +31,15 @@ final class SportListViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var refreshingFile: String? = nil
     @Published var showToast: Bool = false
-    @Published var favoriteFileNames: Set<String> = loadFavoriteFileNames()
+    @Published var favoriteFileNames: Set<String>
     @Published var showFavoritesOnly: Bool = UserDefaults.standard.bool(forKey: "showFavoritesOnly") {
         didSet {
             UserDefaults.standard.set(showFavoritesOnly, forKey: "showFavoritesOnly")
         }
+    }
+    
+    private var favoritesKey: String {
+        "favoriteFileNames_\(sportType.rawValue)"
     }
     
     private var cachedFileNames: Set<String> {
@@ -74,7 +82,7 @@ final class SportListViewModel: ObservableObject {
             return
         }
 
-        let task = URLSession.shared.dataTask(with: APIConfig.footballURL) { data, response, error in
+        let task = URLSession.shared.dataTask(with: APIConfig.url(for: sportType)) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
 
@@ -93,7 +101,7 @@ final class SportListViewModel: ObservableObject {
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
                     if loadFromCache(fileName: file) == nil {
-                        fetchAndCacheFile(file, url: APIConfig.footballURL)
+                        fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
                     }
                 }
             }
@@ -105,7 +113,7 @@ final class SportListViewModel: ObservableObject {
     func fetchFileListWithoutCache() {
         self.isLoading = true
 
-        let task = URLSession.shared.dataTask(with: APIConfig.footballURL) { data, response, error in
+        let task = URLSession.shared.dataTask(with: APIConfig.url(for: sportType)) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false
 
@@ -124,7 +132,7 @@ final class SportListViewModel: ObservableObject {
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
                     if loadFromCache(fileName: file) == nil {
-                        fetchAndCacheFile(file, url: APIConfig.footballURL)
+                        fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
                     }
                 }
             }
@@ -134,7 +142,7 @@ final class SportListViewModel: ObservableObject {
     }
 
     func fileListCacheURL() -> URL? {
-        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_football_cache.txt")
+        FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("file_list_\(sportType.rawValue)_cache.txt")
     }
 
     func saveFileListToCache(_ files: [String]) {
@@ -167,22 +175,14 @@ final class SportListViewModel: ObservableObject {
         self.leagueFiles = sortedFiles
     }
 
-    static func loadFavoriteFileNames() -> Set<String> {
-        let saved = UserDefaults.standard.stringArray(forKey: "favoriteFileNames") ?? []
-        return Set(saved)
-    }
-
-    static private func saveFavoriteFileNames(_ names: Set<String>) {
-        UserDefaults.standard.set(Array(names), forKey: "favoriteFileNames")
-    }
-
-    static func toggleFavorite(_ fileName: String) {
-        var names = loadFavoriteFileNames()
+    func toggleFavorite(fileName: String) {
+        var names = favoriteFileNames
         if names.contains(fileName) {
             names.remove(fileName)
         } else {
             names.insert(fileName)
         }
-        saveFavoriteFileNames(names)
+        favoriteFileNames = names
+        UserDefaults.standard.set(Array(names), forKey: favoritesKey)
     }
 }
