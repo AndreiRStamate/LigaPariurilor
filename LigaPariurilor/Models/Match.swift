@@ -18,24 +18,49 @@ struct Match: Identifiable {
     let action: String
     
     private static let defaultFootballAnalysisTemplate = """
-    Match: {team1} vs {team2}
+    Match Preview & Betting Analysis Request
+    Match Details:
+    Match: {team1} (Home) vs {team2} (Away)
     Competition: {league}
     Date & Time: {commenceTime}
-
-    Please consider the following:
-    • Recent form (last 5 matches)
-    • League standings
-    • Injuries/suspensions
-    • Weather forecast
-    • Referee
-    • Head-to-head record
-    • Tactical styles
-    • Odds movement if relevant
-    • Possible fatigue
-
-    At the end, provide:
-    • 5 likely bets with brief explanations
-    • 3 high-probability bets with strong justifications
+    Analysis Factors to Consider:
+    Recent Form:
+    Overall form (last 5-6 matches - W/D/L, goals scored/conceded) for both teams.
+    Home/Away Specific Form: Analyze {team1}'s record and performance trends at home vs {team2}'s record and performance trends away.
+    League Standings & Season Context:
+    Current table position, points, goal difference.
+    Implications based on their standings (title race, European qualification, relegation battle).
+    Match Context & Motivation:
+    Significance of this specific match (derby, rivalry, cup tie, end-of-season importance).
+    Assess potential motivation levels for both sides.
+    Team News:
+    Confirmed injuries and suspensions.
+    Players doubtful or returning from absence.
+    Relevant internal team news (e.g., managerial pressure, dressing room conflicts).
+    Head-to-Head (H2H) Record:
+    Results of recent meetings (last 3-5).
+    Historical trends or patterns specific to this fixture.
+    Tactical Analysis:
+    Likely formations and playing styles (possession-based, counter-attack, high press, defensive approach).
+    Identify 1-2 Key Player Matchups that could significantly influence the game outcome.
+    Disciplinary & Potential Faults:
+    Identify players most likely to commit fouls or receive bookings based on recent disciplinary records.
+    Highlight players or teams prone to conceding penalties or dangerous set-pieces due to reckless defending.
+    Assess teams' historical disciplinary records (cards frequency, sending-offs).
+    External Factors:
+    Weather Forecast: Predicted conditions (rain, wind, temperature) and potential impact.
+    Referee: Assigned referee and their relevant statistics (card frequency, penalty decisions).
+    Physical Condition:
+    Assess Possible Fatigue based on recent scheduling, travel, and minutes played by key players.
+    Market Indicators:
+    Note significant Odds Movement if observable, and potential reasons behind it (injuries, team news).
+    Advanced Stats:
+    Recent Expected Goals (xG) trends (performance vs. underlying chances created/conceded), if data is readily available.
+    Required Output:
+    Based on the comprehensive analysis above:
+    Provide 5 plausible betting predictions covering diverse markets (e.g., Match Result, Goals Over/Under, Both Teams to Score, Player Props, Handicaps, Card Markets) with brief explanations.
+    Specifically include predictions related to disciplinary actions (cards, fouls committed).
+    Identify 3 bets considered to have a higher probability of success, clearly linked to the analyzed factors, including disciplinary records, tactical matchups, and recent form.
     """
     
     private static let defaultBasketballAnalysisTemplate = """
