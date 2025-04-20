@@ -70,11 +70,31 @@ struct Match: Identifiable {
     """
     
     private static let defaultCricketAnalysisTemplate = """
-    Muie la indieni
+    Match: {team1} vs {team2}
+    Competition: {league}
+    Date & Time: {commenceTime}
+
+    Please analyze and consider the following aspects:
+    • Recent form (last 5 matches)
+    • Current standings or series context (including points table or series scoreline)
+    • Injuries and suspensions (including updates on key players)
+    • Pitch report and ground history (how the surface behaves, average scores, etc.)
+    • Weather forecast (including rain interruptions, dew factor, etc.)
+    • Umpiring crew (especially any known tendencies or controversies)
+    • Head-to-head record
+    • Team composition and balance (batting depth, bowling variety, bench strength)
+    • Tactical approaches (batting tempo, powerplay usage, spin vs pace strategy)
+    • Toss impact (historical data on win/loss after toss at venue)
+    • Odds movement (if relevant)
+    • Possible fatigue or scheduling impact (travel, back-to-back games, etc.)
+
+    At the end, provide:
+    • 5 likely bets with brief reasoning behind each
+    • 3 high-probability bets with strong justifications
     """
     
     private var formattedFootballAnalysis: String {
-        let template = UserDefaults.standard.string(forKey: "analysisFootballTemplate") ?? Self.defaultFootballAnalysisTemplate
+        let template = UserDefaults.standard.string(forKey: "analysisTemplate_football") ?? Self.defaultFootballAnalysisTemplate
         return template
             .replacingOccurrences(of: "{team1}", with: team1)
             .replacingOccurrences(of: "{team2}", with: team2)
@@ -83,7 +103,7 @@ struct Match: Identifiable {
     }
     
     private var formattedBasketballAnalysis: String {
-        let template = UserDefaults.standard.string(forKey: "analysisBasketballTemplate") ?? Self.defaultBasketballAnalysisTemplate
+        let template = UserDefaults.standard.string(forKey: "analysisTemplate_basketball") ?? Self.defaultBasketballAnalysisTemplate
         return template
             .replacingOccurrences(of: "{team1}", with: team1)
             .replacingOccurrences(of: "{team2}", with: team2)
@@ -92,7 +112,7 @@ struct Match: Identifiable {
     }
     
     private var formattedHockeyAnalysis: String {
-        let template = UserDefaults.standard.string(forKey: "analysisHockeyTemplate") ?? Self.defaultHockeyAnalysisTemplate
+        let template = UserDefaults.standard.string(forKey: "analysisTemplate_hockey") ?? Self.defaultHockeyAnalysisTemplate
         return template
             .replacingOccurrences(of: "{team1}", with: team1)
             .replacingOccurrences(of: "{team2}", with: team2)
@@ -101,7 +121,7 @@ struct Match: Identifiable {
     }
     
     private var formattedCricketAnalysis: String {
-        let template = UserDefaults.standard.string(forKey: "analysisCricketTemplate") ?? Self.defaultCricketAnalysisTemplate
+        let template = UserDefaults.standard.string(forKey: "analysisTemplate_cricket") ?? Self.defaultCricketAnalysisTemplate
         return template
             .replacingOccurrences(of: "{team1}", with: team1)
             .replacingOccurrences(of: "{team2}", with: team2)
