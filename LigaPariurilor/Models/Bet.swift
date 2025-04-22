@@ -39,7 +39,7 @@ struct Bet: Identifiable, Codable {
 struct BetEvent: Identifiable, Codable {
     var id = UUID()
     var name: BetEventName
-    private var type: BetType
+    var type: BetType
     var selection: BetSelection
 }
 
@@ -63,26 +63,26 @@ enum BetSelection: Codable {
         case under
     }
 
-    enum Chance3Option: String, Codable {
+    enum Chance3Option: String, Codable, CaseIterable {
         case home = "1"
         case draw = "x"
         case away = "2"
     }
 
-    enum DoubleChanceOption: String, Codable {
+    enum DoubleChanceOption: String, Codable, CaseIterable {
         case homeOrDraw = "1x"
         case drawOrAway = "x2"
         case homeOrAway = "12"
     }
 }
 
-enum BetEventName: String, Codable {
-    case btts = "BTTS"
-    case totalGoals = "TOTALGOALS"
-    case totalCards = "TOTALCARDS"
-    case totalCorners = "TOTALCORNERS"
-    case chance = "CHANCE"
-    case correctScore = "CORRECTSCORE"
+enum BetEventName: String, Codable, CaseIterable {
+    case btts = "GG"
+    case totalGoals = "Total Goluri"
+    case totalCards = "Total Cartonașe"
+    case totalCorners = "Total Cornere"
+    case chance = "Șansă"
+    case correctScore = "Scor Corect"
 }
 
 extension BetEvent {

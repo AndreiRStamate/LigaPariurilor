@@ -11,9 +11,33 @@ final class MatchBetsViewModel: ObservableObject {
     let match: Match
     @Published var bet: Bet?
     
+    @Published var selectedType: BetType = .yesOrNo
+    @Published var selectedName: BetEventName = .btts
+    @Published var boolValue: Bool = false
+    @Published var bound: BetSelection.Bound = .over
+    @Published var value: Double = 2.5
+    @Published var chanceOption: BetSelection.Chance3Option = .home
+    @Published var doubleChanceOption: BetSelection.DoubleChanceOption = .homeOrDraw
+    @Published var score: String = "0:0"
+    
     init(match: Match) {
         self.match = match
         self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, events: MatchBetsViewModel.defaultEvents)
+    }
+    
+    var validTypesForSelectedName: [BetType] {
+        switch selectedName {
+        case .btts: return [.yesOrNo]
+        case .totalGoals, .totalCards, .totalCorners: return [.underOrOver]
+        case .chance: return [.chance3, .doubleChance3]
+        case .correctScore: return [.correctScore]
+        }
+    }
+    
+    func updateTypeIfInvalid() {
+        if !validTypesForSelectedName.contains(selectedType) {
+            selectedType = validTypesForSelectedName.first ?? .yesOrNo
+        }
     }
     
     func displayName() -> String {
@@ -36,13 +60,17 @@ final class MatchBetsViewModel: ObservableObject {
         }
     }
     
+    func deleteAllEvents() {
+        bet?.events.removeAll()
+        bet?.saveToFile()
+    }
+    
     static let defaultEvents: [BetEvent] = [
         BetEvent.bttsYes(),
         BetEvent.totalGoals(over: 3.5),
         BetEvent.totalCorners(over: 1.5),
         BetEvent.totalCards(under: 2),
         BetEvent.correctScore("2:1"),
-        BetEvent.chance(BetSelection.Chance3Option.home),
-        BetEvent.doubleChance(BetSelection.DoubleChanceOption.homeOrDraw)
+        BetEvent.chance(BetSelection.Chance3Option.home)
     ]
 }
