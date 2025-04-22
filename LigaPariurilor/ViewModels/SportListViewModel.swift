@@ -85,7 +85,7 @@ final class SportListViewModel: ObservableObject {
             .data(using: .utf8)
     }
 
-    func fetchFileList(useCache: Bool = true) {
+    func fetchFileList(useCache: Bool = true, withForce: Bool = false) {
         if useCache {
             let cachedFileNames = CacheService.load(fileName: self.cacheFileName, expiry: nil)
                 .flatMap { String(data: $0, encoding: .utf8) }?
@@ -122,7 +122,7 @@ final class SportListViewModel: ObservableObject {
                 }
                 self.populateLeagueFiles(from: matches)
                 for file in matches {
-                    if CacheService.load(fileName: file, expiry: CacheService.fullCacheExpiry) == nil {
+                    if CacheService.load(fileName: file, expiry: CacheService.fullCacheExpiry) == nil  || withForce == true{
                         CacheService.fetchAndCacheFile(file, url: APIConfig.url(for: self.sportType))
                     }
                 }

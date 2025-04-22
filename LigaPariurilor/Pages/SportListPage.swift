@@ -156,7 +156,7 @@ struct SportListPage: View {
             }
             .animation(.easeInOut, value: viewModel.showFavoritesOnly)
             .refreshable {
-                viewModel.fetchFileList(useCache: false)
+                viewModel.fetchFileList(useCache: false, withForce: true)
             }
         }
     }
