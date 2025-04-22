@@ -22,7 +22,7 @@ final class MatchBetsViewModel: ObservableObject {
     
     init(match: Match) {
         self.match = match
-        self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, events: MatchBetsViewModel.defaultEvents)
+        self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, events: [])
     }
     
     var validTypesForSelectedName: [BetType] {
@@ -64,13 +64,4 @@ final class MatchBetsViewModel: ObservableObject {
         bet?.events.removeAll()
         bet?.saveToFile()
     }
-    
-    static let defaultEvents: [BetEvent] = [
-        BetEvent.bttsYes(),
-        BetEvent.totalGoals(over: 3.5),
-        BetEvent.totalCorners(over: 1.5),
-        BetEvent.totalCards(under: 2),
-        BetEvent.correctScore("2:1"),
-        BetEvent.chance(BetSelection.Chance3Option.home)
-    ]
 }
