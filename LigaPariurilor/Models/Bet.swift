@@ -22,7 +22,6 @@ struct Bet: Identifiable, Codable {
 
         if let data = try? encoder.encode(self) {
             try? data.write(to: fileURL)
-            print("data written to \(fileURL)")
         }
     }
     
@@ -30,7 +29,6 @@ struct Bet: Identifiable, Codable {
         let fileManager = FileManager.default
         guard let directory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
         let fileURL = directory.appendingPathComponent("bet-\(match).json")
-        print("searching for data at \(fileURL)")
         guard let data = try? Data(contentsOf: fileURL) else { return nil }
 
         let decoder = JSONDecoder()

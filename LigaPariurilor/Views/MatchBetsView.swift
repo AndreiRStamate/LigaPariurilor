@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MatchBetsView: View {
     @StateObject private var viewModel: MatchBetsViewModel
+    @State private var eventToDelete: BetEvent?
     
     init(match: Match) {
         _viewModel = StateObject(wrappedValue: MatchBetsViewModel(match: match))
@@ -20,10 +21,19 @@ struct MatchBetsView: View {
                 List {
                     ForEach(bet.events) { event in
                         HStack {
-                            Text(event.name.rawValue)
+                            VStack(alignment: .leading) {
+                                Text(event.name.rawValue)
+                                Text(displaySelection(event.selection))
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
                             Spacer()
-                            Text(displaySelection(event.selection))
-                                .foregroundColor(.secondary)
+                            Button(action: {
+                                eventToDelete = event
+                            }) {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
                         }
                     }
                 }
@@ -35,28 +45,34 @@ struct MatchBetsView: View {
                 
                 HStack {
                     Button("BTTS Yes") {
-                        viewModel.bet?.events.append(BetEvent.bttsYes())
-                        viewModel.bet?.saveToFile()
+                        viewModel.addEvent(BetEvent.bttsYes())
                     }
                     Button("BTTS No") {
-                        viewModel.bet?.events.append(BetEvent.bttsNo())
-                        viewModel.bet?.saveToFile()
+                        viewModel.addEvent(BetEvent.bttsNo())
                     }
                 }
                 
                 HStack {
                     Button("Over 2.5 Goals") {
-                        viewModel.bet?.events.append(BetEvent.totalGoals(over: 2.5))
-                        viewModel.bet?.saveToFile()
+                        viewModel.addEvent(BetEvent.totalGoals(over: 2.5))
                     }
                     Button("Correct Score 2:2") {
-                        viewModel.bet?.events.append(BetEvent.correctScore("2:2"))
-                        viewModel.bet?.saveToFile()
+                        viewModel.addEvent(BetEvent.correctScore("2:2"))
                     }
                 }
             } else {
                 Text("Loading bet...")
             }
+        }
+        .alert(item: $eventToDelete) { event in
+            Alert(
+                title: Text("Delete Bet"),
+                message: Text("Are you sure you want to delete this bet event?"),
+                primaryButton: .destructive(Text("Delete")) {
+                    viewModel.deleteEvent(event)
+                },
+                secondaryButton: .cancel()
+            )
         }
         .navigationTitle("Lista pariurilor")
         .navigationBarTitleDisplayMode(.inline)

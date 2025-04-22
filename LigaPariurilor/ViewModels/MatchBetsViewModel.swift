@@ -19,4 +19,16 @@ final class MatchBetsViewModel: ObservableObject {
     func displayName() -> String {
         return "\(match.team1) \nvs \(match.team2)"
     }
+    
+    func addEvent(_ event: BetEvent) {
+        bet?.events.append(event)
+        bet?.saveToFile()
+    }
+
+    func deleteEvent(_ event: BetEvent) {
+        if let index = bet?.events.firstIndex(where: { $0.id == event.id }) {
+            bet?.events.remove(at: index)
+            bet?.saveToFile()
+        }
+    }
 }
