@@ -13,7 +13,7 @@ final class MatchBetsViewModel: ObservableObject {
     
     init(match: Match) {
         self.match = match
-        self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, events: [])
+        self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, events: MatchBetsViewModel.defaultEvents)
     }
     
     func displayName() -> String {
@@ -21,7 +21,11 @@ final class MatchBetsViewModel: ObservableObject {
     }
     
     func addEvent(_ event: BetEvent) {
-        bet?.events.append(event)
+        if let index = bet?.events.firstIndex(where: { $0.name == event.name }) {
+            bet?.events[index] = event
+        } else {
+            bet?.events.append(event)
+        }
         bet?.saveToFile()
     }
 
@@ -31,4 +35,14 @@ final class MatchBetsViewModel: ObservableObject {
             bet?.saveToFile()
         }
     }
+    
+    static let defaultEvents: [BetEvent] = [
+        BetEvent.bttsYes(),
+        BetEvent.totalGoals(over: 3.5),
+        BetEvent.totalCorners(over: 1.5),
+        BetEvent.totalCards(under: 2),
+        BetEvent.correctScore("2:1"),
+        BetEvent.chance(BetSelection.Chance3Option.home),
+        BetEvent.doubleChance(BetSelection.DoubleChanceOption.homeOrDraw)
+    ]
 }

@@ -97,6 +97,10 @@ extension BetEvent {
     static func totalGoals(over value: Double) -> BetEvent {
         return BetEvent(name: .totalGoals, type: .underOrOver, selection: .underOrOver(.over, value))
     }
+    
+    static func totalGoals(under value: Double) -> BetEvent {
+        return BetEvent(name: .totalGoals, type: .underOrOver, selection: .underOrOver(.under, value))
+    }
 
     static func chance(_ option: BetSelection.Chance3Option) -> BetEvent {
         return BetEvent(name: .chance, type: .chance3, selection: .chance3(option))
@@ -106,8 +110,16 @@ extension BetEvent {
         return BetEvent(name: .totalCards, type: .underOrOver, selection: .underOrOver(.over, value))
     }
 
+    static func totalCards(under value: Double) -> BetEvent {
+        return BetEvent(name: .totalCards, type: .underOrOver, selection: .underOrOver(.under, value))
+    }
+
     static func totalCorners(over value: Double) -> BetEvent {
         return BetEvent(name: .totalCorners, type: .underOrOver, selection: .underOrOver(.over, value))
+    }
+
+    static func totalCorners(under value: Double) -> BetEvent {
+        return BetEvent(name: .totalCorners, type: .underOrOver, selection: .underOrOver(.under, value))
     }
 
     static func doubleChance(_ option: BetSelection.DoubleChanceOption) -> BetEvent {
