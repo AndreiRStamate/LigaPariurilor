@@ -52,7 +52,7 @@ var body: some View {
                         case .doubleChance3:
                             selection = .doubleChance3(viewModel.doubleChanceOption)
                         case .correctScore:
-                            selection = .correctScore(viewModel.score)
+                            selection = .correctScore("\(viewModel.homeScore):\(viewModel.awayScore)")
                         }
 
                         let event = BetEvent(name: viewModel.selectedName, type: viewModel.selectedType, selection: selection)
@@ -86,10 +86,17 @@ var body: some View {
                         }
                         Spacer()
                         Button(action: {
-                            eventToDelete = event
+                            viewModel.toggleWon(for: event)
                         }) {
-                            Image(systemName: "trash")
-                                .foregroundColor(.red)
+                            Image(systemName: iconName(for: event.won))
+                                .foregroundColor(color(for: event.won))
+                        }
+                    }
+                    .swipeActions {
+                        Button(role: .destructive) {
+                            eventToDelete = event
+                        } label: {
+                            Label("Șterge", systemImage: "trash")
                         }
                     }
                 }
@@ -100,6 +107,7 @@ var body: some View {
                     } label: {
                         Label("Șterge toate pariurile", systemImage: "trash")
                     }
+                    .padding(.top)
                 }
             }
         } else {
@@ -155,10 +163,22 @@ var body: some View {
                 }
             }
         case .correctScore:
-            Picker("Scor corect", selection: $viewModel.score) {
-                ForEach(["0:0", "1:0", "0:1", "1:1", "2:1", "1:2", "2:2"], id: \.self) { score in
-                    Text(score).tag(score)
+            HStack {
+                Picker("Gazde", selection: $viewModel.homeScore) {
+                    ForEach(0..<11) { Text("\($0)").tag($0) }
                 }
+                .pickerStyle(WheelPickerStyle())
+                .frame(maxWidth: .infinity)
+
+                Text(":")
+                    .font(.title)
+                    .padding(.horizontal)
+
+                Picker("Oaspeți", selection: $viewModel.awayScore) {
+                    ForEach(0..<11) { Text("\($0)").tag($0) }
+                }
+                .pickerStyle(WheelPickerStyle())
+                .frame(maxWidth: .infinity)
             }
         }
     }
@@ -185,6 +205,28 @@ var body: some View {
         case .chance3: return "1X2"
         case .doubleChance3: return "Șansă dublă"
         case .correctScore: return "Scor corect"
+        }
+    }
+    
+    private func iconName(for won: Bool?) -> String {
+        switch won {
+        case .none:
+            return "circle"
+        case .some(true):
+            return "checkmark.circle.fill"
+        case .some(false):
+            return "xmark.circle.fill"
+        }
+    }
+
+    private func color(for won: Bool?) -> Color {
+        switch won {
+        case .none:
+            return .gray
+        case .some(true):
+            return .green
+        case .some(false):
+            return .red
         }
     }
 }

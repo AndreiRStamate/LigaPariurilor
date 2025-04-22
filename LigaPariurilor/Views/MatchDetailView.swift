@@ -149,19 +149,21 @@ struct MatchDetailView: View {
                     .frame(maxWidth: .infinity)
                 }
                 
-                NavigationLink(destination: MatchBetsView(match: viewModel.match)) {
-                    HStack {
-                        Image(systemName: "bolt.horizontal")
-                            .foregroundColor(.accentColor)
-                            .frame(width: 24)
-                        Text("Lista pariurilor")
-                            .foregroundColor(.primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.secondary)
+                if viewModel.sportsType == "football" {
+                    NavigationLink(destination: MatchBetsView(match: viewModel.match)) {
+                        HStack {
+                            Image(systemName: "bolt.horizontal")
+                                .foregroundColor(.accentColor)
+                                .frame(width: 24)
+                            Text("Lista pariurilor")
+                                .foregroundColor(.primary)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
                 }
             }
             .padding()

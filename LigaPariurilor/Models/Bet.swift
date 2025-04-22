@@ -41,6 +41,7 @@ struct BetEvent: Identifiable, Codable {
     var name: BetEventName
     var type: BetType
     var selection: BetSelection
+    var won: Bool? = nil
 }
 
 enum BetType: String, Codable {

@@ -18,7 +18,8 @@ final class MatchBetsViewModel: ObservableObject {
     @Published var value: Double = 2.5
     @Published var chanceOption: BetSelection.Chance3Option = .home
     @Published var doubleChanceOption: BetSelection.DoubleChanceOption = .homeOrDraw
-    @Published var score: String = "0:0"
+    @Published var homeScore: Int = 0
+    @Published var awayScore: Int = 0
     
     init(match: Match) {
         self.match = match
@@ -62,6 +63,21 @@ final class MatchBetsViewModel: ObservableObject {
     
     func deleteAllEvents() {
         bet?.events.removeAll()
+        bet?.saveToFile()
+    }
+    
+    func toggleWon(for event: BetEvent) {
+        guard let index = bet?.events.firstIndex(where: { $0.id == event.id }) else { return }
+        var current = bet!.events[index].won
+        switch current {
+        case .none:
+            current = true
+        case .some(true):
+            current = false
+        case .some(false):
+            current = nil
+        }
+        bet!.events[index].won = current
         bet?.saveToFile()
     }
 }
