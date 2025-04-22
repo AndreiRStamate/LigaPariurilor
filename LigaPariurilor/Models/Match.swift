@@ -60,6 +60,7 @@ struct Match: Identifiable {
     Note significant Odds Movement if observable, and potential reasons behind it (injuries, team news).
     Advanced Stats:
     Recent Expected Goals (xG) trends (performance vs. underlying chances created/conceded), if data is readily available.
+    You can find most recent data on flashscore. Don’t use information older than 2 weeks. If you’re not sure of some statistic don’t include it in your calculations.
     Required Output:
     Based on the comprehensive analysis above:
     Provide 5 plausible betting predictions covering diverse markets (e.g., Match Result, Goals Over/Under, Both Teams to Score, Player Props, Handicaps, Card Markets) with brief explanations.
