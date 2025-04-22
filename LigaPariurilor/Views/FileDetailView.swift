@@ -13,6 +13,7 @@ struct FileDetailView: View {
     let sportsType: String
     @StateObject private var viewModel = JSONViewModel()
     @State private var showPastEvents = false
+    @State private var showOnlyMatchesWithBets = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -31,6 +32,8 @@ struct FileDetailView: View {
 
             if viewModel.hasPastMatches {
                 Toggle("Afișează evenimentele trecute", isOn: $showPastEvents)
+                    .padding(.horizontal)
+                Toggle("Afișează doar meciurile cu pariuri", isOn: $showOnlyMatchesWithBets)
                     .padding(.horizontal)
             }
 
@@ -54,7 +57,7 @@ struct FileDetailView: View {
             } else if !viewModel.matches.isEmpty {
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(viewModel.filteredMatches(showPast: showPastEvents)) { match in
+                        ForEach(viewModel.filteredMatches(showPast: showPastEvents, onlyWithBets: showOnlyMatchesWithBets)) { match in
                             NavigationLink(destination: MatchDetailView(match: match, sportsType: sportsType)) {
                                 MatchBoxView(match: match)
                             }

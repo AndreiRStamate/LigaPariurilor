@@ -34,6 +34,13 @@ struct Bet: Identifiable, Codable {
         let decoder = JSONDecoder()
         return try? decoder.decode(Bet.self, from: data)
     }
+    
+    static func checkIfFileExists(match: String) -> Bool {
+        let fileManager = FileManager.default
+        guard let directory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else { return false }
+        let fileURL = directory.appendingPathComponent("bet-\(match).json")
+        return fileManager.fileExists(atPath: fileURL.path)
+    }
 }
 
 struct BetEvent: Identifiable, Codable {

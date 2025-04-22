@@ -100,11 +100,13 @@ class JSONViewModel: ObservableObject {
         }
     }
 
-    func filteredMatches(showPast: Bool) -> [Match] {
+    func filteredMatches(showPast: Bool, onlyWithBets: Bool = false) -> [Match] {
         let sortedMatches = sortedMatchesArray()
         return sortedMatches.filter { match in
             guard let matchDate = date(from: match.commenceTime) else { return false }
-            return showPast || matchDate > Date()
+            let isFuture = matchDate > Date()
+            let hasBets = Bet.checkIfFileExists(match: match.matchId)
+            return (showPast || isFuture) && (!onlyWithBets || hasBets)
         }
     }
 
