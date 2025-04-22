@@ -148,15 +148,13 @@ struct MatchDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
-
-                Button(action: {
-                    viewModel.open(.claude)
-                }) {
+                
+                NavigationLink(destination: MatchBetsView(match: viewModel.match)) {
                     HStack {
-                        Image(systemName: "brain.head.profile")
+                        Image(systemName: "bolt.horizontal")
                             .foregroundColor(.accentColor)
                             .frame(width: 24)
-                        Text("Deschide Claude")
+                        Text("Lista pariurilor")
                             .foregroundColor(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Spacer()

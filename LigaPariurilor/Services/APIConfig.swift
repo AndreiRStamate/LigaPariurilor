@@ -8,7 +8,7 @@
 import Foundation
 
 struct APIConfig {
-    private static let baseURL = URL(string: "https://1755-188-25-128-207.ngrok-free.app")!
+    private static let baseURL = URL(string: "https://9ed7-188-25-128-207.ngrok-free.app")!
     
     /// Returns the endpoint URL for the given sport.
     static func url(for sportType: SportType) -> URL {

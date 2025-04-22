@@ -17,6 +17,10 @@ struct Match: Identifiable {
     let predictability: Double
     let action: String
     
+    var matchId: String {
+        "\(team1)_\(team2)"
+    }
+
     private static let defaultFootballAnalysisTemplate = """
     Match Preview & Betting Analysis Request
     Match Details:
