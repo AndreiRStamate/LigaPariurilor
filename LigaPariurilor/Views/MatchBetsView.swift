@@ -140,7 +140,11 @@ var body: some View {
     private var dynamicInput: some View {
         switch viewModel.selectedType {
         case .yesOrNo:
-            Toggle("Da?", isOn: $viewModel.boolValue)
+            Picker("Răspuns", selection: $viewModel.boolValue) {
+                Text("Da").tag(true)
+                Text("Nu").tag(false)
+            }
+            .pickerStyle(SegmentedPickerStyle())
         case .underOrOver:
             HStack {
                 Picker("Direcție", selection: $viewModel.bound) {
