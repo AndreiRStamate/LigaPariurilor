@@ -10,7 +10,7 @@ import Foundation
 struct Bet: Identifiable, Codable {
     var id = UUID()
     var matchString: String
-    var events: [BetEvent]
+    var eventGroups: [String: [BetEvent]]
     
     func saveToFile() {
         let fileManager = FileManager.default

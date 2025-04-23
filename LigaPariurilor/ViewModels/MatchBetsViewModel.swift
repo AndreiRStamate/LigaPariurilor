@@ -20,10 +20,12 @@ final class MatchBetsViewModel: ObservableObject {
     @Published var doubleChanceOption: BetSelection.DoubleChanceOption = .homeOrDraw
     @Published var homeScore: Int = 0
     @Published var awayScore: Int = 0
+    @Published var selectedGroupKey: String = "main"
+    @Published var newGroupName: String = ""
     
     init(match: Match) {
         self.match = match
-        self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, events: [])
+        self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, eventGroups: ["main": []])
     }
     
     var validTypesForSelectedName: [BetType] {
@@ -46,29 +48,32 @@ final class MatchBetsViewModel: ObservableObject {
     }
     
     func addEvent(_ event: BetEvent) {
-        if let index = bet?.events.firstIndex(where: { $0.name == event.name }) {
-            bet?.events[index] = event
+        if bet?.eventGroups[selectedGroupKey] == nil {
+            bet?.eventGroups[selectedGroupKey] = []
+        }
+        if let index = bet?.eventGroups[selectedGroupKey]?.firstIndex(where: { $0.name == event.name }) {
+            bet?.eventGroups[selectedGroupKey]?[index] = event
         } else {
-            bet?.events.append(event)
+            bet?.eventGroups[selectedGroupKey]?.append(event)
         }
         bet?.saveToFile()
     }
 
     func deleteEvent(_ event: BetEvent) {
-        if let index = bet?.events.firstIndex(where: { $0.id == event.id }) {
-            bet?.events.remove(at: index)
+        if let index = bet?.eventGroups[selectedGroupKey]?.firstIndex(where: { $0.id == event.id }) {
+            bet?.eventGroups[selectedGroupKey]?.remove(at: index)
             bet?.saveToFile()
         }
     }
     
     func deleteAllEvents() {
-        bet?.events.removeAll()
+        bet?.eventGroups[selectedGroupKey]?.removeAll()
         bet?.saveToFile()
     }
     
     func toggleWon(for event: BetEvent) {
-        guard let index = bet?.events.firstIndex(where: { $0.id == event.id }) else { return }
-        var current = bet!.events[index].won
+        guard let index = bet?.eventGroups[selectedGroupKey]?.firstIndex(where: { $0.id == event.id }) else { return }
+        var current = bet!.eventGroups[selectedGroupKey]![index].won
         switch current {
         case .none:
             current = true
@@ -77,7 +82,23 @@ final class MatchBetsViewModel: ObservableObject {
         case .some(false):
             current = nil
         }
-        bet!.events[index].won = current
+        bet!.eventGroups[selectedGroupKey]![index].won = current
+        bet?.saveToFile()
+    }
+    
+    func addGroup() {
+        let trimmedName = newGroupName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty, bet?.eventGroups[trimmedName] == nil else { return }
+        bet?.eventGroups[trimmedName] = []
+        selectedGroupKey = trimmedName
+        newGroupName = ""
+        bet?.saveToFile()
+    }
+
+    func deleteCurrentGroup() {
+        guard selectedGroupKey != "main" else { return }
+        bet?.eventGroups.removeValue(forKey: selectedGroupKey)
+        selectedGroupKey = "main"
         bet?.saveToFile()
     }
 }

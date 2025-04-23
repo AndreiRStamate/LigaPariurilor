@@ -20,6 +20,29 @@ struct MatchBetsView: View {
 var body: some View {
     List {
         if let bet = viewModel.bet {
+            // --- Group management section ---
+            Section(header: Text("Grupuri de pariuri")) {
+                Picker("Selectează grupul", selection: $viewModel.selectedGroupKey) {
+                    ForEach(Array(bet.eventGroups.keys.sorted()), id: \.self) { key in
+                        Text(key).tag(key)
+                    }
+                }
+
+                HStack {
+                    TextField("Nume nou grup", text: $viewModel.newGroupName)
+                        .textFieldStyle(.roundedBorder)
+
+                    Button("Adaugă") {
+                        viewModel.addGroup()
+                    }
+                }
+
+                if viewModel.selectedGroupKey != "main" {
+                    Button("Șterge grupul curent", role: .destructive) {
+                        viewModel.deleteCurrentGroup()
+                    }
+                }
+            }
             Section {
                 if isCreateSectionExpanded {
                     Picker("Tip pariu", selection: $viewModel.selectedName) {
@@ -75,39 +98,42 @@ var body: some View {
                 }
             }
 
-            Section(header: Text("Pariuri active")) {
-                ForEach(bet.events) { event in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(event.name.rawValue)
-                            Text(displaySelection(event.selection))
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+            ForEach(bet.eventGroups.keys.sorted(), id: \.self) { groupKey in
+                if let events = bet.eventGroups[groupKey] {
+                    Section(header: Text("Grup: \(groupKey)")) {
+                        ForEach(events) { event in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(event.name.rawValue)
+                                    Text(displaySelection(event.selection))
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                                Button(action: {
+                                    viewModel.toggleWon(for: event)
+                                }) {
+                                    Image(systemName: iconName(for: event.won))
+                                        .foregroundColor(color(for: event.won))
+                                }
+                            }
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    eventToDelete = event
+                                } label: {
+                                    Label("Șterge", systemImage: "trash")
+                                }
+                            }
                         }
-                        Spacer()
-                        Button(action: {
-                            viewModel.toggleWon(for: event)
-                        }) {
-                            Image(systemName: iconName(for: event.won))
-                                .foregroundColor(color(for: event.won))
+                        if !events.isEmpty {
+                            Button(role: .destructive) {
+                                showDeleteAllConfirmation = true
+                            } label: {
+                                Label("Șterge toate pariurile din \(groupKey)", systemImage: "trash")
+                            }
+                            .padding(.top)
                         }
                     }
-                    .swipeActions {
-                        Button(role: .destructive) {
-                            eventToDelete = event
-                        } label: {
-                            Label("Șterge", systemImage: "trash")
-                        }
-                    }
-                }
-
-                if !bet.events.isEmpty {
-                    Button(role: .destructive) {
-                        showDeleteAllConfirmation = true
-                    } label: {
-                        Label("Șterge toate pariurile", systemImage: "trash")
-                    }
-                    .padding(.top)
                 }
             }
         } else {
@@ -134,6 +160,28 @@ var body: some View {
     }
     .navigationTitle("Lista pariurilor")
     .navigationBarTitleDisplayMode(.inline)
+    // --- Swipe gesture for group switching ---
+    .gesture(
+        DragGesture().onEnded { value in
+            if let bet = viewModel.bet {
+                let keys = Array(bet.eventGroups.keys.sorted())
+                if let currentIndex = keys.firstIndex(of: viewModel.selectedGroupKey) {
+                    let newIndex: Int?
+                    if value.translation.width < -50 {
+                        newIndex = currentIndex < keys.count - 1 ? currentIndex + 1 : nil
+                    } else if value.translation.width > 50 {
+                        newIndex = currentIndex > 0 ? currentIndex - 1 : nil
+                    } else {
+                        newIndex = nil
+                    }
+
+                    if let i = newIndex {
+                        viewModel.selectedGroupKey = keys[i]
+                    }
+                }
+            }
+        }
+    )
 }
 
     @ViewBuilder
