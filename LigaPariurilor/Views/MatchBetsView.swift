@@ -12,6 +12,7 @@ struct MatchBetsView: View {
     @State private var eventToDelete: BetEvent?
     @State private var showDeleteAllConfirmation = false
     @AppStorage("isCreateSectionExpanded") private var isCreateSectionExpanded = true
+    @AppStorage("isGroupSectionExpanded") private var isGroupSectionExpanded = true
     
     init(match: Match) {
         _viewModel = ObservedObject(wrappedValue: MatchBetsViewModel(match: match))
@@ -21,26 +22,43 @@ var body: some View {
     List {
         if let bet = viewModel.bet {
             // --- Group management section ---
-            Section(header: Text("Grupuri de pariuri")) {
-                Picker("Selectează grupul", selection: $viewModel.selectedGroupKey) {
-                    ForEach(Array(bet.eventGroups.keys.sorted()), id: \.self) { key in
-                        Text(key).tag(key)
+            Section {
+                if isGroupSectionExpanded {
+                    Picker("Selectează grupul", selection: $viewModel.selectedGroupKey) {
+                        ForEach(Array(bet.eventGroups.keys.sorted()), id: \.self) { key in
+                            Text(key).tag(key)
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+
+                    HStack {
+                        TextField("Nume nou grup", text: $viewModel.newGroupName)
+                            .textFieldStyle(.roundedBorder)
+
+                        Button("Adaugă") {
+                            viewModel.addGroup()
+                        }
+                    }
+
+                    if viewModel.selectedGroupKey != MatchBetsViewModel.defaultGroupKey {
+                        Button("Șterge grupul curent", role: .destructive) {
+                            viewModel.deleteCurrentGroup()
+                        }
                     }
                 }
-
+            } header: {
                 HStack {
-                    TextField("Nume nou grup", text: $viewModel.newGroupName)
-                        .textFieldStyle(.roundedBorder)
-
-                    Button("Adaugă") {
-                        viewModel.addGroup()
+                    Text("Grupuri de pariuri")
+                    Spacer()
+                    Button(action: {
+                        withAnimation {
+                            isGroupSectionExpanded.toggle()
+                        }
+                    }) {
+                        Image(systemName: isGroupSectionExpanded ? "chevron.down" : "chevron.right")
+                            .foregroundColor(.blue)
                     }
-                }
-
-                if viewModel.selectedGroupKey != "main" {
-                    Button("Șterge grupul curent", role: .destructive) {
-                        viewModel.deleteCurrentGroup()
-                    }
+                    .buttonStyle(.plain)
                 }
             }
             Section {
@@ -98,41 +116,39 @@ var body: some View {
                 }
             }
 
-            ForEach(bet.eventGroups.keys.sorted(), id: \.self) { groupKey in
-                if let events = bet.eventGroups[groupKey] {
-                    Section(header: Text("Grup: \(groupKey)")) {
-                        ForEach(events) { event in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(event.name.rawValue)
-                                    Text(displaySelection(event.selection))
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                }
-                                Spacer()
-                                Button(action: {
-                                    viewModel.toggleWon(for: event)
-                                }) {
-                                    Image(systemName: iconName(for: event.won))
-                                        .foregroundColor(color(for: event.won))
-                                }
+            if let events = bet.eventGroups[viewModel.selectedGroupKey] {
+                Section(header: Text("Grup: \(viewModel.selectedGroupKey)")) {
+                    ForEach(events) { event in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(event.name.rawValue)
+                                Text(displaySelection(event.selection))
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
                             }
-                            .swipeActions {
-                                Button(role: .destructive) {
-                                    eventToDelete = event
-                                } label: {
-                                    Label("Șterge", systemImage: "trash")
-                                }
+                            Spacer()
+                            Button(action: {
+                                viewModel.toggleWon(for: event)
+                            }) {
+                                Image(systemName: iconName(for: event.won))
+                                    .foregroundColor(color(for: event.won))
                             }
                         }
-                        if !events.isEmpty {
+                        .swipeActions {
                             Button(role: .destructive) {
-                                showDeleteAllConfirmation = true
+                                eventToDelete = event
                             } label: {
-                                Label("Șterge toate pariurile din \(groupKey)", systemImage: "trash")
+                                Label("Șterge", systemImage: "trash")
                             }
-                            .padding(.top)
                         }
+                    }
+                    if !events.isEmpty {
+                        Button(role: .destructive) {
+                            showDeleteAllConfirmation = true
+                        } label: {
+                            Label("Șterge toate pariurile din \(viewModel.selectedGroupKey)", systemImage: "trash")
+                        }
+                        .padding(.top)
                     }
                 }
             }

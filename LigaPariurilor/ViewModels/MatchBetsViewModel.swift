@@ -8,6 +8,7 @@
 import Foundation
 
 final class MatchBetsViewModel: ObservableObject {
+    static let defaultGroupKey = "General"
     let match: Match
     @Published var bet: Bet?
     
@@ -20,12 +21,13 @@ final class MatchBetsViewModel: ObservableObject {
     @Published var doubleChanceOption: BetSelection.DoubleChanceOption = .homeOrDraw
     @Published var homeScore: Int = 0
     @Published var awayScore: Int = 0
-    @Published var selectedGroupKey: String = "main"
+    @Published var selectedGroupKey: String
     @Published var newGroupName: String = ""
     
     init(match: Match) {
         self.match = match
-        self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, eventGroups: ["main": []])
+        self.bet = Bet.loadFromFile(match: match.matchId) ?? Bet(matchString: match.matchId, eventGroups: [Self.defaultGroupKey: []])
+        self.selectedGroupKey = Self.defaultGroupKey
     }
     
     var validTypesForSelectedName: [BetType] {
@@ -96,9 +98,9 @@ final class MatchBetsViewModel: ObservableObject {
     }
 
     func deleteCurrentGroup() {
-        guard selectedGroupKey != "main" else { return }
+        guard selectedGroupKey != Self.defaultGroupKey else { return }
         bet?.eventGroups.removeValue(forKey: selectedGroupKey)
-        selectedGroupKey = "main"
+        selectedGroupKey = Self.defaultGroupKey
         bet?.saveToFile()
     }
 }
