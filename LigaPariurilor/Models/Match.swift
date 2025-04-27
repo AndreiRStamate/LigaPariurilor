@@ -28,7 +28,7 @@ struct Match: Identifiable {
     Competition: {league}
     Date & Time: {commenceTime}
     Analysis Factors to Consider:
-    Recent Form:
+    Recent Form (get it from Flashscore):
     Overall form (last 5-6 matches - W/D/L, goals scored/conceded) for both teams.
     Home/Away Specific Form: Analyze {team1}'s record and performance trends at home vs {team2}'s record and performance trends away.
     League Standings & Season Context:
@@ -46,26 +46,28 @@ struct Match: Identifiable {
     Historical trends or patterns specific to this fixture.
     Tactical Analysis:
     Likely formations and playing styles (possession-based, counter-attack, high press, defensive approach).
-    Identify 1-2 Key Player Matchups that could significantly influence the game outcome.
     Disciplinary & Potential Faults:
-    Identify players most likely to commit fouls or receive bookings based on recent disciplinary records.
-    Highlight players or teams prone to conceding penalties or dangerous set-pieces due to reckless defending.
     Assess teams' historical disciplinary records (cards frequency, sending-offs).
     External Factors:
     Weather Forecast: Predicted conditions (rain, wind, temperature) and potential impact.
-    Referee: Assigned referee and their relevant statistics (card frequency, penalty decisions).
+    Referee: Assigned referee and their relevant statistics (card frequency).
     Physical Condition:
     Assess Possible Fatigue based on recent scheduling, travel, and minutes played by key players.
-    Market Indicators:
-    Note significant Odds Movement if observable, and potential reasons behind it (injuries, team news).
-    Advanced Stats:
-    Recent Expected Goals (xG) trends (performance vs. underlying chances created/conceded), if data is readily available.
-    You can find most recent data on flashscore. Don’t use information older than 2 weeks. If you’re not sure of some statistic don’t include it in your calculations.
+    Don’t use information older than 2 weeks.
+    If you’re not sure of some statistic don’t include it in your calculations.
+    Finally, to calculate the probability you must use these weights:
+    WEIGHTS = [
+        1.0,# team_strength_diff
+        0.25,# recent_form_diff
+        0.5,# home_advantage
+        2.0,# injury_penalty
+        0.5,# fatigue_score
+        2.0,# coach_advantage
+        0.25,# head_to_head_adv
+    ]
     Required Output:
     Based on the comprehensive analysis above:
-    Provide 5 plausible betting predictions covering diverse markets (e.g., Match Result, Goals Over/Under, Both Teams to Score, Player Props, Handicaps, Card Markets) with brief explanations.
-    Specifically include predictions related to disciplinary actions (cards, fouls committed).
-    Identify 3 bets considered to have a higher probability of success, clearly linked to the analyzed factors, including disciplinary records, tactical matchups, and recent form.
+    Present 3 connected bets with a high probability of success (>80%), clearly linked to the analyzed factors.
     """
     
     private static let defaultBasketballAnalysisTemplate = """
