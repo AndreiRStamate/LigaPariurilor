@@ -23,6 +23,8 @@ struct SportListPage: View {
 
     @State private var refreshFlag = UUID()
     @State private var showingSettings = false
+    @State private var showIPToast = false
+    @State private var ipAddress: String = ""
     @State private var analysisTemplate: String
     private var analysisTemplateKey: String {
         "analysisTemplate_\(sportType.rawValue)"
@@ -53,6 +55,20 @@ struct SportListPage: View {
                         showingSettings.toggle()
                     }) {
                         Image(systemName: "ellipsis.circle")
+                            .imageScale(.large)
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        viewModel.fetchIP { ip in
+                            ipAddress = ip ?? "Unavailable"
+                            showIPToast = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                showIPToast = false
+                            }
+                        }
+                    }) {
+                        Image(systemName: "globe")
                             .imageScale(.large)
                     }
                 }
@@ -163,7 +179,16 @@ struct SportListPage: View {
 
     @ViewBuilder
     private var toastView: some View {
-        if viewModel.showToast {
+        if showIPToast {
+            Text("your ip is: \(ipAddress)")
+                .font(.caption)
+                .padding(8)
+                .background(Color.black.opacity(0.7))
+                .foregroundColor(.white)
+                .cornerRadius(8)
+                .padding(.bottom, 16)
+                .transition(.opacity)
+        } else if viewModel.showToast {
             Text("Datele au fost actualizate.")
                 .font(.caption)
                 .padding(8)

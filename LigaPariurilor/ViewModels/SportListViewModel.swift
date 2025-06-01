@@ -176,4 +176,27 @@ final class SportListViewModel: ObservableObject {
     func isStale(fileName: String) -> Bool {
         return CacheService.isStale(fileName: fileName)
     }
+
+    func fetchIP(completion: @escaping (String?) -> Void) {
+        let url = APIConfig.urlip()
+        var request = URLRequest(url: url)
+        let apiKey = Bundle.main.infoDictionary?["API_KEY"] as? String
+        request.setValue(apiKey, forHTTPHeaderField: "X-API-KEY")
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    print("Error fetching IP: \(error)")
+                    completion(nil)
+                    return
+                }
+                guard let data = data, let ipString = String(data: data, encoding: .utf8) else {
+                    print("Invalid IP data")
+                    completion(nil)
+                    return
+                }
+                completion(ipString)
+            }
+        }
+        task.resume()
+    }
 }
