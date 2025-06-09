@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct SportListPage: View {
     let sportType: SportType
@@ -62,6 +63,9 @@ struct SportListPage: View {
                     Button(action: {
                         viewModel.fetchIP { ip in
                             ipAddress = ip ?? "Unavailable"
+                            if let ip = ip {
+                                UIPasteboard.general.string = ip
+                            }
                             showIPToast = true
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                 showIPToast = false
