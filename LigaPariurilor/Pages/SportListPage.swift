@@ -137,8 +137,11 @@ struct SportListPage: View {
 
     @ViewBuilder
     private var toggleView: some View {
-        Toggle("Favorite", isOn: $viewModel.showFavoritesOnly)
-            .padding(.horizontal)
+        VStack(alignment: .leading) {
+            Toggle("Favorite", isOn: $viewModel.showFavoritesOnly)
+            Toggle("Only Future Games", isOn: $viewModel.showFutureOnly)
+        }
+        .padding(.horizontal)
     }
 
     @ViewBuilder

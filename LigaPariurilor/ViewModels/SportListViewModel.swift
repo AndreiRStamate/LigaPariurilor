@@ -5,7 +5,17 @@
 //  Created by Andrei R Stamate on 19.04.2025.
 //
 
+
 import Foundation
+
+/// A minimal representation of a fixture used just to check its kickoff time.
+private struct MinimalMatch: Decodable {
+    let commenceTime: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case commenceTime = "commence_time"
+    }
+}
 
 enum SportType: String {
     case football
@@ -38,6 +48,11 @@ final class SportListViewModel: ObservableObject {
             UserDefaults.standard.set(showFavoritesOnly, forKey: "showFavoritesOnly")
         }
     }
+    @Published var showFutureOnly: Bool = UserDefaults.standard.bool(forKey: "showFutureOnly") {
+        didSet {
+            UserDefaults.standard.set(showFutureOnly, forKey: "showFutureOnly")
+        }
+    }
     
     private var cacheFileName: String {
         "file_list_\(sportType.rawValue)_cache.txt"
@@ -52,15 +67,19 @@ final class SportListViewModel: ObservableObject {
     }
     
     var filteredFiles: [LeagueFile] {
-        // Apply search filter first
-        let base = searchText.isEmpty
+        var result = searchText.isEmpty
             ? leagueFiles
             : leagueFiles.filter { $0.displayName.localizedCaseInsensitiveContains(searchText) }
-        // Then apply favorites filter if enabled
+
         if showFavoritesOnly {
-            return base.filter { favoriteFileNames.contains($0.fileName) }
+            result = result.filter { favoriteFileNames.contains($0.fileName) }
         }
-        return base
+
+        if showFutureOnly {
+            result = result.filter { hasFutureGames(fileName: $0.fileName) }
+        }
+
+        return result
     }
     
     /// Groups filtered files by region and sorts sections by size, with stable ordering
@@ -170,6 +189,24 @@ final class SportListViewModel: ObservableObject {
                 self.showToast = false
             }
         }
+    }
+
+    /// Returns `true` if the cached JSON for `fileName` contains at least one match whose
+    /// `commence_time` is in the future.
+    private func hasFutureGames(fileName: String) -> Bool {
+        guard let data = CacheService.load(fileName: fileName,
+                                           expiry: CacheService.fullCacheExpiry) else {
+            return false
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970   // The API returns epoch seconds
+        
+        if let matches = try? decoder.decode([MinimalMatch].self, from: data) {
+            return matches.contains { $0.commenceTime > Date() }
+        }
+        
+        return false
     }
 
     /// Determines if a file is stale (uses existing standalone isStale function)
