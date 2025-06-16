@@ -8,15 +8,6 @@
 
 import Foundation
 
-/// A minimal representation of a fixture used just to check its kickoff time.
-private struct MinimalMatch: Decodable {
-    let commenceTime: Date
-    
-    enum CodingKeys: String, CodingKey {
-        case commenceTime = "commence_time"
-    }
-}
-
 enum SportType: String {
     case football
     case basketball
@@ -199,12 +190,11 @@ final class SportListViewModel: ObservableObject {
             return false
         }
         
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .secondsSince1970   // The API returns epoch seconds
-        
-        if let matches = try? decoder.decode([MinimalMatch].self, from: data) {
-            return matches.contains { $0.commenceTime > Date() }
+        let decoder = JSONMatchDecoder()
+        if let matches = try? decoder.decode(data) {
+            return matches.contains { $0.commenceTime > Date().ISO8601Format() }
         }
+        
         
         return false
     }

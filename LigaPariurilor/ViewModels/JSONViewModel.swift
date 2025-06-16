@@ -25,17 +25,6 @@ class JSONViewModel: ObservableObject {
     @AppStorage("sortMode") var sortMode: SortMode = .predictability
     @Published private var allMatches: [Match] = []
     
-    private func parseJSON(_ data: Data) {
-        do {
-            _ = try JSONSerialization.jsonObject(with: data, options: [])
-            let matches = JSONMatchParser.parseMatches(from: data)
-            self.allMatches = matches
-            self.sortMatches()
-        } catch {
-            self.errorMessage = "Failed to parse JSON"
-        }
-    }
-    
     /// Reusable ISO8601 date formatter
     private static let isoFormatter = ISO8601DateFormatter()
 
