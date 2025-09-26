@@ -67,7 +67,7 @@ struct Match: Identifiable {
     ]
     Required Output:
     Based on the comprehensive analysis above:
-    Present 3 connected bets with a high probability of success (>80%), clearly linked to the analyzed factors.
+    Use the weights provided to calculate the win/draw probability.
     """
     
     private static let defaultBasketballAnalysisTemplate = """

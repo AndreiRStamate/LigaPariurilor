@@ -33,10 +33,13 @@ struct FileDetailView: View {
             if viewModel.hasPastMatches {
                 Toggle("Afișează evenimentele trecute", isOn: $showPastEvents)
                     .padding(.horizontal)
+            }
+
+            if viewModel.hasBets {
                 Toggle("Afișează doar meciurile cu pariuri", isOn: $showOnlyMatchesWithBets)
                     .padding(.horizontal)
             }
-
+            
             if viewModel.isLoading {
                 Spacer()
                 ProgressView("Loading...")

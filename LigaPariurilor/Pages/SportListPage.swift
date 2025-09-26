@@ -32,7 +32,7 @@ struct SportListPage: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 searchBar
                 toggleView
@@ -40,17 +40,9 @@ struct SportListPage: View {
                 toastView
             }
             .padding(.top, 20)
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Ligi Disponibile")
+            .toolbarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Text("Ligi Disponibile")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.5)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.top, 20)
-                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showingSettings.toggle()
@@ -207,3 +199,4 @@ struct SportListPage: View {
         }
     }
 }
+

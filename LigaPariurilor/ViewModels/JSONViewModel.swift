@@ -89,6 +89,12 @@ class JSONViewModel: ObservableObject {
         }
     }
 
+    var hasBets: Bool {
+        sortedMatchesArray().contains { match in
+            Bet.checkIfFileExists(match: match.matchId)
+        }
+    }
+
     func filteredMatches(showPast: Bool, onlyWithBets: Bool = false) -> [Match] {
         let sortedMatches = sortedMatchesArray()
         return sortedMatches.filter { match in
@@ -104,3 +110,4 @@ class JSONViewModel: ObservableObject {
         return (LeagueInfo.names[trimmed] ?? trimmed).uppercased()
     }
 }
+
