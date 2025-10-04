@@ -152,7 +152,7 @@ struct MatchDetailView: View {
                 if viewModel.sportsType == "football" {
                     NavigationLink(destination: MatchBetsView(match: viewModel.match)) {
                         HStack {
-                            Image(systemName: "bolt.horizontal")
+                            Image(systemName: "list.bullet.rectangle")
                                 .foregroundColor(.accentColor)
                                 .frame(width: 24)
                             Text("Lista pariurilor")
