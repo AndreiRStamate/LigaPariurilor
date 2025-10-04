@@ -76,7 +76,6 @@ struct FileDetailView: View {
                 Spacer()
             }
         }
-        .padding(.bottom)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
