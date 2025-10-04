@@ -10,23 +10,6 @@ import SwiftUI
 struct FileListView: View {
 
     var body: some View {
-        TabView {
-            SportListPage(sportType: SportType.football)
-                .tabItem {
-                    Label("Fotbal", systemImage: "soccerball")
-                }
-            SportListPage(sportType: SportType.basketball)
-                .tabItem {
-                    Label("Baschet", systemImage: "basketball")
-                }
-            SportListPage(sportType: SportType.hockey)
-                .tabItem {
-                    Label("Hochei", systemImage: "hockey.puck")
-                }
-            SportListPage(sportType: SportType.cricket)
-                .tabItem {
-                    Label("Cricket", systemImage: "sportscourt")
-                }
-        }
+        SportListPage(sportType: .football)
     }
 }
