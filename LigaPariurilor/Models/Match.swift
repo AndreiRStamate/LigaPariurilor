@@ -71,16 +71,54 @@ struct Match: Identifiable {
     """
     
     private static let defaultBasketballAnalysisTemplate = """
-    Give me the 5 most likely bets to hit for the {team1} vs {team2} game on {commenceTime}
-    Consider the following factors in your analysis:
-    • Current player formations and rotations
-    • Recent team performance and trends
-    • The time of the game and its potential impact
-    • Historical matchups between these teams, including results from the current season
-    • Player injuries and their betting implications
-    • Individual player matchups, including historical performance against specific opponents (regardless of which teams they previously played for)
-    • The referees assigned to the game, their historical foul-calling tendencies, and their impact on specific players or teams
-    • Suggest any bet type available on sportsbooks (spreads, totals, player props, specials, etc). For each recommended bet, explain the reasoning and data behind the suggestion.
+    Match Preview & Betting Analysis Request
+    Match Details:
+    Match: {team1} (Home) vs {team2} (Away)
+    Competition: {league}
+    Date & Time: {commenceTime}
+    Analysis Factors to Consider:
+    Recent Form (get it from ESPN or Flashscore):
+    Overall form (last 5-6 matches - Win/Loss and points scored/conceded) for both teams.
+    Home/Away Specific Form: Analyze {team1}'s record and performance trends at home vs {team2}'s record and performance trends away.
+    League Standings & Season Context:
+    Current table position, average points per game and average point differential.
+    Implications based on their standings (playoff contention race).
+    Match Context & Motivation:
+    Significance of this specific match (team or player rivalry, end-of-season importance).
+    Assess potential motivation levels for both sides.
+    Team News:
+    Confirmed injuries and suspensions.
+    Players doubtful or returning from absence.
+    Relevant internal team news (e.g., managerial pressure, dressing room conflicts, media-imposed stress).
+    Head-to-Head (H2H) Record:
+    Results of recent meetings (last 3-5).
+    Historical trends or patterns specific to this fixture.
+    Tactical Analysis:
+    Likely formations and playing styles (team play, individual player talent).
+    Disciplinary & Potential Faults:
+    Assess teams' historical disciplinary records (foul tendencies, history of technical fouls or flagrant fouls).
+    External Factors:
+    Referee: Assigned referee team and their relevant statistics (number of fouls called).
+    Physical Condition:
+    Assess Possible Fatigue based on recent scheduling, travel, and minutes played by key players.
+    Don’t use information older than 4 weeks.
+    If you’re not sure of some statistic don’t include it in your calculations.
+    Take into consideration the breaks between games for each team, future schedule and importance of winning this match compared to the next ones.
+    Take into consideration recent transfers and how that affects the team.
+    Look into the coaches' style of play and record against each other.
+    Finally, to calculate the probability you must use these weights:
+    WEIGHTS = [
+        0.85,  # team_strength_diff weight
+        0.40,  # recent_form_diff weight
+        0.50,  # home_advantage weight
+        1.25,  # injury_penalty weight
+        0.40,  # fatigue_score weight
+        1.20,  # coach_advantage weight
+        0.30,  # head_to_head_adv weight
+    ]
+    Required Output:
+    Based on the comprehensive analysis above:
+    Use the weights provided to calculate the win/draw/lose probability.
     """
     
     private static let defaultHockeyAnalysisTemplate = """
