@@ -51,23 +51,6 @@ struct SportListPage: View {
                             .imageScale(.large)
                     }
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        viewModel.fetchIP { ip in
-                            ipAddress = ip ?? "Unavailable"
-                            if let ip = ip {
-                                UIPasteboard.general.string = ip
-                            }
-                            showIPToast = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                showIPToast = false
-                            }
-                        }
-                    }) {
-                        Image(systemName: "globe")
-                            .imageScale(.large)
-                    }
-                }
             }
             .sheet(isPresented: $showingSettings) {
                 NavigationView {

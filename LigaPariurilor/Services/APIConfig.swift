@@ -14,7 +14,4 @@ struct APIConfig {
     static func url(for sportType: SportType) -> URL {
         return URL(string: "\(APIConfig.baseURL)/\(sportType.rawValue)")!
     }
-    static func urlip() -> URL {
-        return URL(string: "\(APIConfig.baseURL)/ip")!
-    }
 }
