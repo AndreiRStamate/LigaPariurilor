@@ -110,7 +110,7 @@ final class SportListViewModel: ObservableObject {
         self.isLoading = true
 
         var request = URLRequest(url: APIConfig.url(for: sportType))
-        request.setValue(APIConfig.apiKey, forHTTPHeaderField: "X-API-KEY")
+        request.setValue(APIKeys.apiKey, forHTTPHeaderField: "X-API-KEY")
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 self.isLoading = false

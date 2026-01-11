@@ -107,7 +107,7 @@ struct CacheService: CacheManaging{
             request.setValue(formatter.string(from: cachedDate), forHTTPHeaderField: "If-Modified-Since")
         }
         
-        request.setValue(APIConfig.apiKey, forHTTPHeaderField: "X-API-KEY")
+        request.setValue(APIKeys.apiKey, forHTTPHeaderField: "X-API-KEY")
         URLSession.shared.dataTask(with: request) { data, response, _ in
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 304 {
                 // Refresh cache timestamp

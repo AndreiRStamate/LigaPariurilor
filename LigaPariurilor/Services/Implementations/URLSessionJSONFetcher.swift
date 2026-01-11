@@ -16,7 +16,7 @@ class URLSessionJSONFetcher: JSONFetching {
              completion: @escaping (Result<Data, Error>) -> Void) {
     let url = baseURL.appendingPathComponent(fileName)
     var request = URLRequest(url: url)
-    request.setValue(APIConfig.apiKey, forHTTPHeaderField: "X-API-KEY")
+    request.setValue(APIKeys.apiKey, forHTTPHeaderField: "X-API-KEY")
     URLSession.shared.dataTask(with: request) { data, _, error in
       if let e = error { return completion(.failure(e)) }
       guard let d = data else { return completion(.failure(FetchError.noData)) }
