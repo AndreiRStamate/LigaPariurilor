@@ -30,7 +30,7 @@ private let regionKeywords: [String: [String]] = [
         "soccer_england_league1",
         "soccer_england_league2"
     ],
-    "🏴 Scotland": [
+    "🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland": [
         "soccer_spl"
     ],
     "🇩🇰 Denmark": [
